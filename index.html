@@ -2475,10 +2475,11 @@ document.getElementById('suppPick').addEventListener('change', function(e){
   msg.innerHTML = t('officialBoutique')+' <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">'+t('verifyGoogle')+'</a>';
 });
 
-document.getElementById('sheetPrint').onclick = function(){
-  document.title = printFilenameBase || originalTitle;
-  window.print();
-};
+document.getElementById('sheetPrint').onclick = function(){ window.print(); };
+window.addEventListener('beforeprint', function(){
+  var overlayOpen = document.getElementById('sheetOverlay').classList.contains('open');
+  document.title = (overlayOpen && printFilenameBase) ? printFilenameBase : originalTitle;
+});
 window.addEventListener('afterprint', function(){ document.title = originalTitle; });
 document.getElementById('sheetClose').onclick = closeSheet;
 document.getElementById('sheetOverlay').addEventListener('click', function(e){
