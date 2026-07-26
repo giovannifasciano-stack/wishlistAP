@@ -74,11 +74,14 @@ header{
   color:var(--acciaio-soft);padding:8px 10px;font-size:13px;
 }
 #gearBtn:hover,#gearBtn:focus-visible{color:var(--oro);border-color:var(--oro)}
-#langToggle{
+.lang-pick{display:flex;gap:4px}
+.lang-pick button{
   background:none;border:1px solid var(--linea);border-radius:2px;
-  color:var(--acciaio-soft);padding:8px 12px;font-size:11px;letter-spacing:.08em;font-weight:600;
+  color:var(--acciaio-soft);padding:8px 10px;font-size:11px;letter-spacing:.04em;font-weight:600;
+  display:flex;align-items:center;gap:5px;
 }
-#langToggle:hover,#langToggle:focus-visible{color:var(--oro);border-color:var(--oro)}
+.lang-pick button:hover{color:var(--oro);border-color:var(--oro)}
+.lang-pick button.on{border-color:var(--oro);color:var(--oro)}
 :focus-visible{outline:2px solid var(--blu-vivo);outline-offset:2px}
 
 /* ---------- tabs + viste ---------- */
@@ -540,7 +543,10 @@ footer b{color:var(--oro);font-weight:500}
     <div class="hdr-actions">
       <input id="search" type="search" placeholder="Search ref, model, material…" data-i18n-ph="searchPh" aria-label="Search">
       <button id="wishToggle" aria-label="Wishlist">♥ Wishlist <span class="wc" id="wishCount"></span></button>
-      <button id="langToggle" aria-label="Language">EN</button>
+      <div class="lang-pick" id="langPick" aria-label="Language">
+        <button data-lang="en">🇬🇧 EN</button>
+        <button data-lang="it">🇮🇹 IT</button>
+      </div>
       <button id="gearBtn" aria-label="Settings">⚙</button>
     </div>
   </div>
@@ -2320,7 +2326,9 @@ document.getElementById('clearCache').onclick = function(){
 };
 
 function applyLanguage(){
-  document.getElementById('langToggle').textContent = lang.toUpperCase();
+  document.querySelectorAll('#langPick button').forEach(function(b){
+    b.classList.toggle('on', b.dataset.lang === lang);
+  });
   document.documentElement.lang = lang;
 
   document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -2343,11 +2351,14 @@ function applyLanguage(){
   }
 }
 
-document.getElementById('langToggle').onclick = function(){
-  lang = (lang === 'en') ? 'it' : 'en';
-  saveLang();
-  applyLanguage();
-};
+document.querySelectorAll('#langPick button').forEach(function(b){
+  b.onclick = function(){
+    if(lang === b.dataset.lang) return;
+    lang = b.dataset.lang;
+    saveLang();
+    applyLanguage();
+  };
+});
 applyLanguage();
 
 document.getElementById('wishToggle').onclick = function(){ setWishlistMode(!wishlistMode); };
