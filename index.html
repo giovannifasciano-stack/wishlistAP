@@ -74,6 +74,11 @@ header{
   color:var(--acciaio-soft);padding:8px 10px;font-size:13px;
 }
 #gearBtn:hover,#gearBtn:focus-visible{color:var(--oro);border-color:var(--oro)}
+#langToggle{
+  background:none;border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio-soft);padding:8px 12px;font-size:11px;letter-spacing:.08em;font-weight:600;
+}
+#langToggle:hover,#langToggle:focus-visible{color:var(--oro);border-color:var(--oro)}
 :focus-visible{outline:2px solid var(--blu-vivo);outline-offset:2px}
 
 /* ---------- tabs + viste ---------- */
@@ -439,10 +444,11 @@ footer b{color:var(--oro);font-weight:500}
 }
 .loc-pick button.on{border-color:var(--oro);color:var(--oro)}
 #wishBar .wb-tax{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--acciaio-soft)}
-#wishBar select, #wishBar input[type=number], #wishBar input[type=text], #wishBar #wbOrderNo{
+#wishBar select, #wishBar input[type=number], #wishBar input[type=text], #wishBar input[type=date], #wishBar #wbOrderNo{
   background:var(--carbone);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);
   padding:7px 9px;font-size:12px;outline:none;font-family:inherit;
 }
+#wishBar input:disabled, #wishBar select:disabled{opacity:.4;cursor:not-allowed}
 #wishBar #wbOrderNo{width:170px}
 #wishBar input[type=number]{width:58px;text-align:right}
 .wb-actions{margin-top:14px;display:flex;gap:8px;justify-content:flex-end}
@@ -476,6 +482,8 @@ footer b{color:var(--oro);font-weight:500}
 .ordtotals .orow{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #f1ede6}
 .ordtotals .orow.big{border-bottom:none;border-top:2px solid #14161a;margin-top:3px;padding-top:8px;font-size:14px;font-weight:700}
 .ordtotals .orow .v.gold{color:#8a6d3b}
+.ordpayment{margin-top:12px;margin-left:auto;width:270px;font-size:11px;color:#6d7178}
+.ordpayment-k{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#9a7b3f;margin-right:6px}
 
 /* ---------- parti ordine: due riquadri (fornitore / acquirente) ---------- */
 .wb-boxes{
@@ -530,23 +538,43 @@ footer b{color:var(--oro);font-weight:500}
       </span>
     </a>
     <div class="hdr-actions">
-      <input id="search" type="search" placeholder="Search ref, model, material…" aria-label="Search">
+      <input id="search" type="search" placeholder="Search ref, model, material…" data-i18n-ph="searchPh" aria-label="Search">
       <button id="wishToggle" aria-label="Wishlist">♥ Wishlist <span class="wc" id="wishCount"></span></button>
+      <button id="langToggle" aria-label="Language">EN</button>
       <button id="gearBtn" aria-label="Settings">⚙</button>
     </div>
   </div>
   <div id="wishBar">
 
     <div class="wb-section">
-      <div class="wb-section-h">Order</div>
+      <div class="wb-section-h" data-i18n="secOrder">Order</div>
       <div class="wb-section-row">
         <div class="wb-field-inline">
-          <label>Order no.</label>
+          <label data-i18n="orderNo">Order no.</label>
           <input id="wbOrderNo" autocomplete="off">
         </div>
         <div class="wb-field-inline">
-          <label>Buying from</label>
+          <label data-i18n="buyingFrom">Buying from</label>
           <div class="loc-pick" id="locPick"></div>
+        </div>
+      </div>
+      <div class="wb-section-row" style="margin-top:12px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--acciaio-soft)">
+          <input type="checkbox" id="wbPayEnable" style="width:auto">
+          <span data-i18n="payEnable">Include payment details</span>
+        </label>
+      </div>
+      <div class="wb-section-row" id="wbPayFields" style="display:none;margin-top:10px">
+        <div class="wb-field-inline">
+          <label data-i18n="payMethod">Payment method</label>
+          <select id="wbPayMethod">
+            <option value="transfer" data-i18n="payTransfer">Bank transfer</option>
+            <option value="card" data-i18n="payCard">Credit card</option>
+          </select>
+        </div>
+        <div class="wb-field-inline">
+          <label data-i18n="payDate">Payment date</label>
+          <input id="wbPayDate" type="date" disabled>
         </div>
       </div>
     </div>
@@ -566,32 +594,32 @@ footer b{color:var(--oro);font-weight:500}
       <div class="wb-section-h">Parties</div>
       <div class="wb-boxes">
         <div class="wb-box">
-          <div class="wb-box-h">Sold by</div>
+          <div class="wb-box-h" data-i18n="soldBy">Sold by</div>
           <select id="suppPick"></select>
-          <input id="suppName" placeholder="Name (if manual)" autocomplete="off">
+          <input id="suppName" placeholder="Name (if manual)" data-i18n-ph="nameIfManual" autocomplete="off">
           <span id="suppLookupMsg"></span>
-          <textarea id="suppAddr" placeholder="Street, postcode, city, country · phone"></textarea>
+          <textarea id="suppAddr" placeholder="Street, postcode, city, country · phone" data-i18n-ph="addrEditable"></textarea>
         </div>
 
         <div class="wb-box">
-          <div class="wb-box-h">Buyer</div>
+          <div class="wb-box-h" data-i18n="buyer">Buyer</div>
           <div class="wb-buyer-tabs" id="buyerTabs">
             <button data-loc="miami">🇺🇸 <span id="buyerNameUS"></span></button>
             <button data-loc="paradiso">🇨🇭 <span id="buyerNameCH"></span></button>
           </div>
           <div class="partyaddr" id="buyerPreview" style="margin:8px 0 0"></div>
           <div class="wb-manual">
-            <div class="wb-manual-h">Or enter a different buyer manually</div>
-            <input id="custNameManual" placeholder="Buyer name" autocomplete="off">
-            <textarea id="custAddrManual" placeholder="Address"></textarea>
+            <div class="wb-manual-h" data-i18n="orEnterManual">Or enter a different buyer manually</div>
+            <input id="custNameManual" placeholder="Buyer name" data-i18n-ph="buyerNamePh" autocomplete="off">
+            <textarea id="custAddrManual" placeholder="Address" data-i18n-ph="addressPh"></textarea>
           </div>
         </div>
       </div>
     </div>
 
     <div class="wb-actions">
-      <button class="ghost" id="wbClear">Clear wishlist</button>
-      <button id="wbPrint">Print order</button>
+      <button class="ghost" id="wbClear" data-i18n="clearWishlist">Clear wishlist</button>
+      <button id="wbPrint" data-i18n="printOrder">Print order</button>
     </div>
 
   </div>
@@ -605,39 +633,39 @@ footer b{color:var(--oro);font-weight:500}
 
 <div id="loader">
   <div class="octa-spin" aria-hidden="true"></div>
-  <div id="loadMsg">Contacting AP feeds…</div>
+  <div id="loadMsg" data-i18n="contactingFeeds">Contacting AP feeds…</div>
 </div>
 
 <main id="main" hidden>
   <div id="content"></div>
-  <div id="emptyMsg">No references match your filters.</div>
+  <div id="emptyMsg" data-i18n="noMatch">No references match your filters.</div>
 </main>
 
 <aside id="panel" aria-label="Settings">
   <button id="closePanel" aria-label="Close">✕</button>
-  <h2>Settings</h2>
-  <label for="proxyInput">Proxy (Cloudflare Worker)</label>
+  <h2 id="panelTitle" data-i18n="settings">Settings</h2>
+  <label for="proxyInput" id="lblProxy" data-i18n="proxyLabel">Proxy (Cloudflare Worker)</label>
   <input id="proxyInput" type="url" placeholder="https://watch-proxy.owscan.workers.dev">
   <div class="row">
-    <button id="saveProxy">Save &amp; reload</button>
-    <button class="ghost" id="testProxy">Test proxy</button>
-    <button class="ghost" id="clearCache">Clear catalogue cache</button>
+    <button id="saveProxy" data-i18n="saveReload">Save &amp; reload</button>
+    <button class="ghost" id="testProxy" data-i18n="testProxy">Test proxy</button>
+    <button class="ghost" id="clearCache" data-i18n="clearCache">Clear catalogue cache</button>
   </div>
   <div id="testOut"></div>
 
-  <label for="paMiami" style="margin-top:26px">Your address — Miami</label>
+  <label for="paMiami" id="lblMiami" data-i18n="yourAddrMiami" style="margin-top:26px">Your address — Miami</label>
   <textarea id="paMiami" rows="3" placeholder="Street, postcode, Miami, FL, USA" style="width:100%;background:var(--nero);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);padding:9px 11px;font-size:12.5px;font-family:inherit;outline:none;resize:vertical"></textarea>
 
-  <label for="paParadiso">Your address — Paradiso</label>
+  <label for="paParadiso" id="lblParadiso" data-i18n="yourAddrParadiso">Your address — Paradiso</label>
   <textarea id="paParadiso" rows="3" placeholder="Via, CAP, Paradiso, Lugano, Switzerland" style="width:100%;background:var(--nero);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);padding:9px 11px;font-size:12.5px;font-family:inherit;outline:none;resize:vertical"></textarea>
   <div class="row">
-    <button id="saveProfile">Save addresses</button>
+    <button id="saveProfile" data-i18n="saveAddresses">Save addresses</button>
   </div>
 
-  <label style="margin-top:26px">Boutique directory (live from AP)</label>
+  <label id="lblBoutiqueDir" data-i18n="boutiqueDirLabel" style="margin-top:26px">Boutique directory (live from AP)</label>
   <div id="storesStatusPanel" style="font-size:11.5px;color:var(--acciaio-soft);margin-bottom:8px"></div>
   <div class="row">
-    <button class="ghost" id="refreshStores">Reload directory (~1 min)</button>
+    <button class="ghost" id="refreshStores" data-i18n="reloadDirectory">Reload directory (~1 min)</button>
   </div>
 </aside>
 
@@ -790,6 +818,133 @@ function writeCache(list){
    endpoint: /{site}/home.price.{REF}.{country}.json
    → {price:{amount,currency}}  (scoperto da ProductInfo chunk)
    ========================================================= */
+/* =========================================================
+   I18N — English / Italiano
+   Copre l'interfaccia del sito, il pannello ordine e le
+   stampe. Non traduce i dati AP live (nomi collezione,
+   materiali, indirizzi boutique) né i nomi propri.
+   ========================================================= */
+var I18N = {
+  searchPh:{en:'Search ref, model, material…', it:'Cerca ref, modello, materiale…'},
+  wishToggle:{en:'\u2665 Wishlist', it:'\u2665 Lista desideri'},
+  all:{en:'All', it:'Tutte'},
+  viewCurrent:{en:'Current', it:'Attuale'},
+  viewSpecial:{en:'Special', it:'Speciale'},
+  viewLegacy:{en:'Legacy', it:'Storico'},
+  liveCatalogue:{en:'Live catalogue', it:'Catalogo live'},
+  cachedCatalogue:{en:'Catalogue (cached)', it:'Catalogo (in cache)'},
+  refresh:{en:'refresh', it:'aggiorna'},
+  references:{en:'references', it:'referenze'},
+  current:{en:'current', it:'attuali'},
+  special:{en:'special', it:'speciali'},
+  legacy:{en:'legacy', it:'storiche'},
+  pricesLive:{en:'Official prices live', it:'Prezzi ufficiali live'},
+  priceDetecting:{en:'Prices: detecting official feed…', it:'Prezzi: rilevamento del listino ufficiale…'},
+  priceNotResponding:{en:'Price feed not responding — shown as "on request"', it:'Listino non raggiungibile — mostrato come "su richiesta"'},
+  priceOnRequest:{en:'Price on request', it:'Prezzo su richiesta'},
+  imageOnAP:{en:'Image on AP', it:'Immagine su AP'},
+  noMatch:{en:'No references match your filters.', it:'Nessuna referenza corrisponde ai filtri.'},
+  wishEmpty:{en:'Your wishlist is empty — tap the \u2665 on any watch to add it.', it:'La tua lista desideri \u00e8 vuota — tocca il \u2665 su un orologio per aggiungerlo.'},
+  wishlist:{en:'Wishlist', it:'Lista desideri'},
+  watch1:{en:'watch', it:'orologio'},
+  watches:{en:'watches', it:'orologi'},
+  createOrder:{en:'Create order', it:'Crea ordine'},
+  closeOrder:{en:'Close order', it:'Chiudi ordine'},
+  openSheetTip:{en:'Open printable sheet', it:'Apri scheda stampabile'},
+  openOfficialTip:{en:'Open on audemarspiguet.com', it:'Apri su audemarspiguet.com'},
+  openExportTip:{en:'Open export price analysis', it:'Apri analisi prezzi export'},
+  addWish:{en:'Add to wishlist', it:'Aggiungi alla lista'},
+  removeWish:{en:'Remove from wishlist', it:'Rimuovi dalla lista'},
+  secOrder:{en:'Order', it:'Ordine'},
+  secTax:{en:'Tax', it:'Tasse'},
+  secParties:{en:'Parties', it:'Parti'},
+  orderNo:{en:'Order no.', it:'N. ordine'},
+  buyingFrom:{en:'Buying from', it:'Acquisto in'},
+  payEnable:{en:'Include payment details', it:'Includi dettagli di pagamento'},
+  payMethod:{en:'Payment method', it:'Metodo di pagamento'},
+  payTransfer:{en:'Bank transfer', it:'Bonifico bancario'},
+  payCard:{en:'Credit card', it:'Carta di credito'},
+  payDate:{en:'Payment date', it:'Data di pagamento'},
+  showDetax:{en:'Show detax (net of VAT)', it:'Mostra prezzo netto (detax)'},
+  soldBy:{en:'Sold by', it:'Venditore'},
+  buyer:{en:'Buyer', it:'Acquirente'},
+  nameIfManual:{en:'Name (if manual)', it:'Nome (se manuale)'},
+  addrEditable:{en:'Street, postcode, city, country · phone', it:'Via, CAP, citt\u00e0, paese · telefono'},
+  orEnterManual:{en:'Or enter a different buyer manually', it:'Oppure inserisci un acquirente diverso manualmente'},
+  buyerNamePh:{en:'Buyer name', it:'Nome acquirente'},
+  addressPh:{en:'Address', it:'Indirizzo'},
+  clearWishlist:{en:'Clear wishlist', it:'Svuota lista'},
+  printOrder:{en:'Print order', it:'Stampa ordine'},
+  otherRetailer:{en:'\u2014 Other retailer (enter manually) \u2014', it:'\u2014 Altro rivenditore (inserisci manualmente) \u2014'},
+  typeManually:{en:'Type the reseller name and address manually.', it:'Scrivi manualmente nome e indirizzo del rivenditore.'},
+  officialBoutique:{en:'Official boutique — addresses can change;', it:'Boutique ufficiale — gli indirizzi possono cambiare;'},
+  verifyGoogle:{en:'verify on Google \u2192', it:'verifica su Google \u2192'},
+  boutiquesLoaded:{en:'official boutiques loaded.', it:'boutique ufficiali caricate.'},
+  boutiquesWillLoad:{en:'Official boutiques will load automatically when you open Wishlist.', it:'Le boutique ufficiali si caricheranno automaticamente aprendo la Lista desideri.'},
+  settings:{en:'Settings', it:'Impostazioni'},
+  proxyLabel:{en:'Proxy (Cloudflare Worker)', it:'Proxy (Cloudflare Worker)'},
+  saveReload:{en:'Save & reload', it:'Salva e ricarica'},
+  testProxy:{en:'Test proxy', it:'Testa proxy'},
+  clearCache:{en:'Clear catalogue cache', it:'Svuota cache catalogo'},
+  yourAddrMiami:{en:'Your address — Miami', it:'Il tuo indirizzo — Miami'},
+  yourAddrParadiso:{en:'Your address — Paradiso', it:'Il tuo indirizzo — Paradiso'},
+  saveAddresses:{en:'Save addresses', it:'Salva indirizzi'},
+  boutiqueDirLabel:{en:'Boutique directory (live from AP)', it:'Elenco boutique (live da AP)'},
+  reloadDirectory:{en:'Reload directory (~1 min)', it:'Aggiorna elenco (~1 min)'},
+  specifications:{en:'Specifications', it:'Specifiche'},
+  officialPrices:{en:'Official retail prices', it:'Prezzi ufficiali al pubblico'},
+  collection:{en:'Collection', it:'Collezione'},
+  model:{en:'Model', it:'Modello'},
+  reference:{en:'Reference', it:'Referenza'},
+  caseMaterial:{en:'Case material', it:'Materiale cassa'},
+  caseSize:{en:'Case size', it:'Diametro cassa'},
+  availability:{en:'Availability', it:'Disponibilit\u00e0'},
+  currentColl:{en:'Current collection', it:'Collezione attuale'},
+  specialEdition:{en:'Special edition', it:'Edizione speciale'},
+  legacyDisc:{en:'Legacy / discontinued', it:'Storico / fuori produzione'},
+  exportAnalysis:{en:'Export analysis \u00b7 net of VAT', it:'Analisi export \u00b7 netto IVA'},
+  bestMarket:{en:'Best market', it:'Mercato migliore'},
+  itemHead:{en:'Item', it:'Articolo'},
+  unitPrice:{en:'Unit price', it:'Prezzo unitario'},
+  subtotal:{en:'Subtotal', it:'Subtotale'},
+  total:{en:'Total', it:'Totale'},
+  netDetax:{en:'Net (detax)', it:'Netto (detax)'},
+  orderConfirmation:{en:'Order confirmation', it:'Conferma d\'ordine'},
+  generatedOn:{en:'generated on', it:'generato il'},
+  payment:{en:'Payment', it:'Pagamento'},
+  due:{en:'due', it:'scadenza'},
+  atCurrentRate:{en:'At current rate', it:'Al cambio attuale'},
+  netDetaxAtCurrentRate:{en:'Net (detax) at current rate', it:'Netto (detax) al cambio attuale'},
+  fxUnavailable:{en:'Equivalent in other currencies unavailable — exchange rates could not be retrieved.', it:'Controvalore nelle altre valute non disponibile — impossibile recuperare i cambi.'},
+  legalNotice:{en:'Prices are official Audemars Piguet list prices, retrieved from audemarspiguet.com. Subject to change. This document is a sales order confirmation and does not constitute an invoice. Unofficial document \u2014 Audemars Piguet\u00ae is a trademark of Audemars Piguet Holding SA.',
+               it:'I prezzi sono i listini ufficiali Audemars Piguet, rilevati da audemarspiguet.com. Soggetti a variazione. Questo documento \u00e8 una conferma d\'ordine e non costituisce fattura. Documento non ufficiale \u2014 Audemars Piguet\u00ae \u00e8 un marchio di Audemars Piguet Holding SA.'},
+  sheetLegalNotice:{en:'Prices are official Audemars Piguet list prices for Switzerland, Italy and the United States, retrieved from audemarspiguet.com. Subject to change and to local taxes and duties. Unofficial document \u2014 Audemars Piguet\u00ae is a trademark of Audemars Piguet Holding SA.',
+                    it:'I prezzi sono i listini ufficiali Audemars Piguet per Svizzera, Italia e Stati Uniti, rilevati da audemarspiguet.com. Soggetti a variazione e a tasse/dazi locali. Documento non ufficiale \u2014 Audemars Piguet\u00ae \u00e8 un marchio di Audemars Piguet Holding SA.'},
+  contactingFeeds:{en:'Contacting AP feeds…', it:'Connessione ai feed AP…'},
+  imageNotAvailable:{en:'Image not available', it:'Immagine non disponibile'},
+  onRequest:{en:'On request', it:'Su richiesta'},
+  loadingRates:{en:'Loading exchange rates…', it:'Caricamento cambi…'},
+  noOfficialPrices:{en:'No official list prices available for this reference.', it:'Nessun prezzo ufficiale disponibile per questa referenza.'},
+  taxMarket:{en:'Market', it:'Mercato'},
+  taxList:{en:'List', it:'Listino'},
+  taxVat:{en:'VAT', it:'IVA'},
+  best:{en:'Best', it:'Migliore'},
+  netLabel:{en:'net', it:'netto'},
+  taxNote1:{en:'Net prices exclude VAT (Switzerland 8.1%, Italy 22%) and are indicative of an export or tax-free purchase; actual refunds are usually lower once agency fees are deducted. US list prices are quoted before state sales tax, which is added at purchase and is not recoverable. ',
+            it:'I prezzi netti escludono l\u2019IVA (Svizzera 8.1%, Italia 22%) e sono indicativi di un acquisto in esenzione/export; il rimborso reale \u00e8 di norma inferiore per via delle commissioni d\u2019agenzia. I listini USA sono al netto della sales tax locale, aggiunta alla cassa e non recuperabile. '},
+  taxRates:{en:'Rates: 1 CHF =', it:'Cambi: 1 CHF ='},
+  retrieved:{en:'retrieved', it:'rilevati alle'},
+  ratesUnavailable:{en:'Exchange rates unavailable — cross-currency comparison not shown. ', it:'Cambi non disponibili — confronto tra valute non mostrato. '},
+  dutiesNote:{en:'Import duties, customs and warranty terms are not included in this comparison.', it:'Dazi, sdoganamento e condizioni di garanzia non sono inclusi in questo confronto.'}
+};
+var lang = (function(){ try{ return localStorage.getItem('apwish_lang') || 'en'; }catch(e){ return 'en'; } })();
+function t(key){
+  var e = I18N[key];
+  if(!e) return key;
+  return e[lang] || e.en;
+}
+function saveLang(){ try{ localStorage.setItem('apwish_lang', lang); }catch(e){} }
+
 var PRICE_LOCALES = [
   {label:'CHF', flag:'🇨🇭', site:'ch/en', cc:'ch', fmt:'de-CH'},
   {label:'EUR', flag:'🇪🇺', site:'it/it', cc:'it', fmt:'de-DE'},
@@ -904,7 +1059,7 @@ function priceSkeleton(){
 function renderPricesInto(el, entry){
   var any = PRICE_LOCALES.some(function(loc){ return entry && entry[loc.label]; });
   if(!any){
-    el.innerHTML = '<span class="onreq">Price on request</span>';
+    el.innerHTML = '<span class="onreq">'+t('priceOnRequest')+'</span>';
     return;
   }
   var html = '<div class="plist">';
@@ -930,7 +1085,7 @@ function pumpPrices(){
         pumpPrices();
       }, function(){
         priceActive--;
-        if(job.el.isConnected) job.el.innerHTML = '<span class="onreq">Price on request</span>';
+        if(job.el.isConnected) job.el.innerHTML = '<span class="onreq">'+t('priceOnRequest')+'</span>';
         pumpPrices();
       });
     })(job);
@@ -944,7 +1099,7 @@ var priceObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
     var el = en.target, ref = el.getAttribute('data-ref');
     priceReady.then(function(){
       if(!priceEngineOn){
-        el.innerHTML = '<span class="onreq">Price on request</span>';
+        el.innerHTML = '<span class="onreq">'+t('priceOnRequest')+'</span>';
         return;
       }
       var c = priceCache[ref];
@@ -1203,7 +1358,7 @@ function populateBoutiquePicker(){
   sel.innerHTML = '';
   var opt0 = document.createElement('option');
   opt0.value = '__manual__';
-  opt0.textContent = '— Other retailer (enter manually) —';
+  opt0.textContent = t('otherRetailer');
   sel.appendChild(opt0);
 
   if(!liveStores.length) return;
@@ -1303,10 +1458,11 @@ function toggleWish(ref, btn){
 
 function updateWishHeader(){
   var n = wishCount();
-  var c = document.getElementById('wishCount');
-  if(c) c.textContent = n || '';
-  var t = document.getElementById('wishToggle');
-  if(t) t.classList.toggle('on', wishlistMode);
+  var wtBtn = document.getElementById('wishToggle');
+  if(wtBtn){
+    wtBtn.classList.toggle('on', wishlistMode);
+    wtBtn.innerHTML = t('wishToggle') + ' <span class="wc" id="wishCount">' + (n || '') + '</span>';
+  }
 }
 
 function renderLocPick(){
@@ -1385,7 +1541,7 @@ function renderTabs(){
   var total = 0; for(var k in counts) total += counts[k];
   var all = document.createElement('button');
   all.className = 'tab' + (activeColl==='ALL' ? ' active' : '');
-  all.innerHTML = 'All <span class="n">'+total+'</span>';
+  all.innerHTML = t('all')+' <span class="n">'+total+'</span>';
   all.onclick = function(){ activeColl = 'ALL'; renderTabs(); renderGrid(); };
   tabs.appendChild(all);
   COLLECTIONS.forEach(function(c){
@@ -1404,7 +1560,7 @@ function renderViews(){
   var allOn = VIEWS.every(function(v){ return activeViews[v.key]; });
   var allBtn = document.createElement('button');
   allBtn.className = 'chip' + (allOn ? ' on' : '');
-  allBtn.textContent = 'All';
+  allBtn.textContent = t('all');
   allBtn.setAttribute('aria-pressed', allOn ? 'true' : 'false');
   allBtn.onclick = function(){
     VIEWS.forEach(function(v){ activeViews[v.key] = true; });
@@ -1414,7 +1570,7 @@ function renderViews(){
   VIEWS.forEach(function(v){
     var b = document.createElement('button');
     b.className = 'chip' + (activeViews[v.key] ? ' on' : '');
-    b.textContent = v.label;
+    b.textContent = t(v.key==='core-collection'?'viewCurrent':v.key==='special'?'viewSpecial':'viewLegacy');
     b.setAttribute('aria-pressed', activeViews[v.key] ? 'true' : 'false');
     b.onclick = function(){
       activeViews[v.key] = !activeViews[v.key];
@@ -1426,8 +1582,8 @@ function renderViews(){
 
 function badgeFor(it){
   if(it.views['core-collection']) return null;
-  if(it.views['special']) return {cls:'special', label:'Special'};
-  if(it.views['legacy']) return {cls:'legacy', label:'Legacy'};
+  if(it.views['special']) return {cls:'special', label:t('viewSpecial')};
+  if(it.views['legacy']) return {cls:'legacy', label:t('viewLegacy')};
   return null;
 }
 
@@ -1451,7 +1607,7 @@ function cardFor(it){
   var wishb = document.createElement('button');
   wishb.className = 'wishbtn' + (isWished(it.ref) ? ' on' : '');
   wishb.innerHTML = '\u2665';
-  wishb.title = isWished(it.ref) ? 'Remove from wishlist' : 'Add to wishlist';
+  wishb.title = isWished(it.ref) ? t('removeWish') : t('addWish');
   wishb.onclick = function(e){ e.stopPropagation(); toggleWish(it.ref, wishb); };
   card.appendChild(wishb);
 
@@ -1470,7 +1626,7 @@ function cardFor(it){
       img.remove();
       var d = document.createElement('div');
       d.className = 'noimg';
-      d.textContent = 'Image on AP';
+      d.textContent = t('imageOnAP');
       frame.appendChild(d);
     }
     function toPageFallback(){
@@ -1509,21 +1665,21 @@ function cardFor(it){
   card.appendChild(frame);
   frame.setAttribute('role','button');
   frame.tabIndex = 0;
-  frame.title = 'Open printable sheet';
+  frame.title = t('openSheetTip');
   frame.onclick = function(){ openSheet(it, frame.querySelector('img')); };
   frame.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openSheet(it, frame.querySelector('img')); } };
 
-  var t = document.createElement('div');
-  t.className = 'ptitle';
-  t.textContent = it.title || it.collName;
-  card.appendChild(t);
+  var titleEl = document.createElement('div');
+  titleEl.className = 'ptitle';
+  titleEl.textContent = it.title || it.collName;
+  card.appendChild(titleEl);
 
   var ref = document.createElement('div');
   ref.className = 'ref';
   ref.textContent = it.ref;
   ref.setAttribute('role','link');
   ref.tabIndex = 0;
-  ref.title = 'Open on audemarspiguet.com';
+  ref.title = t('openOfficialTip');
   ref.onclick = openOfficial;
   ref.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openOfficial(); } };
   card.appendChild(ref);
@@ -1542,12 +1698,12 @@ function cardFor(it){
   pr.innerHTML = priceSkeleton();
   pr.setAttribute('role','button');
   pr.tabIndex = 0;
-  pr.title = 'Open export price analysis';
+  pr.title = t('openExportTip');
   pr.onclick = function(){ openSheet(it, frame.querySelector('img'), true); };
   pr.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openSheet(it, frame.querySelector('img'), true); } };
   card.appendChild(pr);
   if(priceObserver) priceObserver.observe(pr);
-  else pr.innerHTML = '<span class="onreq">Price on request</span>';
+  else pr.innerHTML = '<span class="onreq">'+t('priceOnRequest')+'</span>';
 
   return card;
 }
@@ -1561,9 +1717,9 @@ function renderGrid(){
 
   document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
   if(wishlistMode){
-    document.getElementById('emptyMsg').textContent = 'Your wishlist is empty — tap the ♥ on any watch to add it.';
+    document.getElementById('emptyMsg').textContent = t('wishEmpty');
   } else {
-    document.getElementById('emptyMsg').textContent = 'No references match your filters.';
+    document.getElementById('emptyMsg').textContent = t('noMatch');
   }
 
   if(wishlistMode){
@@ -1575,10 +1731,10 @@ function renderGrid(){
       h0.style.justifyContent = 'space-between';
       h0.style.flexWrap = 'wrap';
       h0.style.gap = '10px';
-      h0.innerHTML = '<span>Wishlist <small>'+filtered.length+' watch'+(filtered.length>1?'es':'')+'</small></span>';
+      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+filtered.length+' '+(filtered.length>1?t('watches'):t('watch1'))+'</small></span>';
       var ordBtn = document.createElement('button');
       ordBtn.id = 'toggleOrderBtn';
-      ordBtn.textContent = orderPanelOpen ? 'Close order' : 'Create order';
+      ordBtn.textContent = orderPanelOpen ? t('closeOrder') : t('createOrder');
       ordBtn.style.cssText = 'background:var(--oro);border:1px solid var(--oro);color:#14161a;font-weight:600;padding:8px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;white-space:nowrap';
       ordBtn.onclick = toggleOrderPanel;
       h0.appendChild(ordBtn);
@@ -1708,9 +1864,9 @@ function hiRes(url){
 }
 
 function statusLabel(it){
-  if(it.views['core-collection']) return 'Current collection';
-  if(it.views['special']) return 'Special edition';
-  if(it.views['legacy']) return 'Legacy / discontinued';
+  if(it.views['core-collection']) return t('currentColl');
+  if(it.views['special']) return t('specialEdition');
+  if(it.views['legacy']) return t('legacyDisc');
   return '—';
 }
 
@@ -1726,12 +1882,12 @@ function openSheet(it, imgEl, withTax){
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
 
   var specs = [
-    ['Collection', it.collName],
-    ['Model', it.title || '—'],
-    ['Reference', it.ref],
-    ['Case material', it.materials || '—'],
-    ['Case size', it.size || '—'],
-    ['Availability', statusLabel(it)]
+    [t('collection'), it.collName],
+    [t('model'), it.title || '—'],
+    [t('reference'), it.ref],
+    [t('caseMaterial'), it.materials || '—'],
+    [t('caseSize'), it.size || '—'],
+    [t('availability'), statusLabel(it)]
   ];
 
   var html = '';
@@ -1741,21 +1897,21 @@ function openSheet(it, imgEl, withTax){
 
   html += '<div class="sheet-photo">' + (src
     ? '<img src="'+src+'" alt="'+escapeHtml(it.collName+' '+it.ref)+'">'
-    : '<div style="font-size:11px;letter-spacing:.2em;color:#b3b7bd;text-transform:uppercase">Image not available</div>') + '</div>';
+    : '<div style="font-size:11px;letter-spacing:.2em;color:#b3b7bd;text-transform:uppercase">'+t('imageNotAvailable')+'</div>') + '</div>';
 
   html += '<div class="sheet-eyebrow">'+escapeHtml(it.collName)+'</div>';
   html += '<div class="sheet-title">'+escapeHtml(it.title || it.collName)+'</div>';
-  html += '<div class="sheet-ref">Ref. '+escapeHtml(it.ref)+'</div>';
+  html += '<div class="sheet-ref">'+t('reference')+' '+escapeHtml(it.ref)+'</div>';
   html += '<div class="sheet-rule"></div>';
 
   html += '<div class="sheet-cols">';
-  html += '<div class="sheet-col"><div class="sheet-h">Specifications</div>';
+  html += '<div class="sheet-col"><div class="sheet-h">'+t('specifications')+'</div>';
   specs.forEach(function(s){
     html += '<div class="srow"><span class="k">'+escapeHtml(s[0])+'</span><span class="v">'+escapeHtml(s[1])+'</span></div>';
   });
   html += '</div>';
 
-  html += '<div class="sheet-col"><div class="sheet-h">Official retail prices</div><div id="sheetPrices">';
+  html += '<div class="sheet-col"><div class="sheet-h">'+t('officialPrices')+'</div><div id="sheetPrices">';
   PRICE_LOCALES.forEach(function(loc){
     html += '<div class="srow"><span class="k">'+loc.flag+' '+loc.label+'</span><span class="v gold" data-cur="'+loc.label+'">…</span></div>';
   });
@@ -1781,7 +1937,7 @@ function openSheet(it, imgEl, withTax){
         var cell = box.querySelector('[data-cur="'+loc.label+'"]');
         if(!cell) return;
         var p = entry && entry[loc.label];
-        cell.textContent = p ? (loc.label+' '+fmtPrice(p, loc)) : 'On request';
+        cell.textContent = p ? (loc.label+' '+fmtPrice(p, loc)) : t('onRequest');
         if(!p) cell.classList.remove('gold');
       });
     }
@@ -1799,8 +1955,8 @@ function openSheet(it, imgEl, withTax){
 async function buildTaxSection(entry){
   var host = document.getElementById('taxSection');
   if(!host) return;
-  host.innerHTML = '<div class="sheet-h" style="margin-top:18px">Export analysis · net of VAT</div>'
-                 + '<div style="font-size:11px;color:#8b8f96;padding:6px 0">Loading exchange rates…</div>';
+  host.innerHTML = '<div class="sheet-h" style="margin-top:18px">'+t('exportAnalysis')+'</div>'
+                 + '<div style="font-size:11px;color:#8b8f96;padding:6px 0">'+t('loadingRates')+'</div>';
 
   var markets = [
     {label:'CHF', flag:'🇨🇭', name:'Switzerland', vat:VAT.CHF, vatLabel:'8.1%', fmt:'de-CH'},
@@ -1810,8 +1966,8 @@ async function buildTaxSection(entry){
 
   var avail = markets.filter(function(m){ return entry && entry[m.label]; });
   if(!avail.length){
-    host.innerHTML = '<div class="sheet-h" style="margin-top:18px">Export analysis · net of VAT</div>'
-                   + '<div style="font-size:11.5px;color:#8b8f96;padding:8px 0">No official list prices available for this reference.</div>';
+    host.innerHTML = '<div class="sheet-h" style="margin-top:18px">'+t('exportAnalysis')+'</div>'
+                   + '<div style="font-size:11.5px;color:#8b8f96;padding:8px 0">'+t('noOfficialPrices')+'</div>';
     return;
   }
 
@@ -1834,15 +1990,15 @@ async function buildTaxSection(entry){
   }
 
   var h = '';
-  h += '<div class="sheet-h" style="margin-top:18px">Export analysis · net of VAT</div>';
+  h += '<div class="sheet-h" style="margin-top:18px">'+t('exportAnalysis')+'</div>';
   h += '<div class="taxwrap"><table class="taxtable"><thead><tr>'
-     + '<th>Market</th><th>List</th><th>VAT</th><th>Net CHF</th><th>Net EUR</th><th>Net USD</th><th>Δ</th>'
+     + '<th>'+t('taxMarket')+'</th><th>'+t('taxList')+'</th><th>'+t('taxVat')+'</th><th>Net CHF</th><th>Net EUR</th><th>Net USD</th><th>Δ</th>'
      + '</tr></thead><tbody>';
   avail.forEach(function(m){
     var isBest = best && m === best;
     var delta = '—';
     if(best && m.netCHF){
-      if(isBest) delta = '<span class="bestTag">Best</span>';
+      if(isBest) delta = '<span class="bestTag">'+t('best')+'</span>';
       else delta = '<span class="pct">+'+((m.netCHF - best.netCHF)/best.netCHF*100).toFixed(1)+'%</span>';
     }
     h += '<tr'+(isBest?' class="isbest"':'')+'>'
@@ -1864,22 +2020,22 @@ async function buildTaxSection(entry){
     if(best.label !== 'EUR') others.push('EUR '+nfmt(best.netEUR, 'de-DE'));
     if(best.label !== 'USD') others.push('USD '+nfmt(best.netUSD, 'en-US'));
     h += '<div class="bestbox">'
-       + '<span class="bb-k">Best market</span>'
-       + '<span class="bb-v">'+best.flag+' '+best.name+' · '+best.label+' '+nfmt(best.net, bLoc)+' net'
+       + '<span class="bb-k">'+t('bestMarket')+'</span>'
+       + '<span class="bb-v">'+best.flag+' '+best.name+' · '+best.label+' '+nfmt(best.net, bLoc)+' '+t('netLabel')
        + (others.length ? ' <span class="bb-eq">('+others.join(') (')+')</span>' : '')
        + '</span>'
        + '</div>';
   }
 
   h += '<div class="taxnote">';
-  h += 'Net prices exclude VAT (Switzerland 8.1%, Italy 22%) and are indicative of an export or tax-free purchase; actual refunds are usually lower once agency fees are deducted. US list prices are quoted before state sales tax, which is added at purchase and is not recoverable. ';
+  h += t('taxNote1');
   if(fx){
     var fxTime = new Date(fx.ts).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
-    h += 'Rates: 1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD · '
-       + escapeHtml(fx.source || 'market') + ', retrieved ' + fxTime + '. ';
+    h += t('taxRates')+' '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD · '
+       + escapeHtml(fx.source || 'market') + ', '+t('retrieved')+' ' + fxTime + '. ';
   }
-  else h += 'Exchange rates unavailable — cross-currency comparison not shown. ';
-  h += 'Import duties, customs and warranty terms are not included in this comparison.';
+  else h += t('ratesUnavailable');
+  h += t('dutiesNote');
   h += '</div>';
 
   host.innerHTML = h;
@@ -1914,7 +2070,7 @@ async function openOrderSheet(){
   html += '<div class="ordhead">';
   html += '<div class="ordhead-brand"><img src="'+AP_LOGO_DARK+'" alt="Audemars Piguet" onerror="this.outerHTML=\'<div class=&quot;hfallback&quot;>AUDEMARS PIGUET</div>\'"></div>';
   html += '<div class="ordhead-meta">'
-        + '<div class="ordh-label">Order confirmation</div>'
+        + '<div class="ordh-label">'+t('orderConfirmation')+'</div>'
         + '<div class="ordh-sub"><input id="ordNoInput" value="'+escapeHtml(orderNo)+'"></div>'
         + '<div class="ordh-date">'+today+'</div>'
         + '</div>';
@@ -1925,22 +2081,22 @@ async function openOrderSheet(){
   var buyer = getBuyer();
 
   html += '<div class="sheet-cols" style="margin-top:14px">';
-  html += '<div class="sheet-col"><div class="sheet-h">Sold by</div>'
+  html += '<div class="sheet-col"><div class="sheet-h">'+t('soldBy')+'</div>'
         + '<div class="partyname">'+escapeHtml(suppName || '—')+'</div>'
         + (suppAddr ? '<div class="partyaddr">'+escapeHtml(suppAddr)+'</div>' : '')
         + '</div>';
-  html += '<div class="sheet-col"><div class="sheet-h">Buyer</div>'
+  html += '<div class="sheet-col"><div class="sheet-h">'+t('buyer')+'</div>'
         + '<div class="partyname">'+escapeHtml(buyer.name || '—')+'</div>'
         + (buyer.addr ? '<div class="partyaddr">'+escapeHtml(buyer.addr)+'</div>' : '')
         + '</div>';
   html += '</div>';
 
   html += '<table class="ordtable"><thead><tr>'
-        + '<th colspan="2">Item</th><th class="r">Unit price</th>'
+        + '<th colspan="2">'+t('itemHead')+'</th><th class="r">'+t('unitPrice')+'</th>'
         + '</tr></thead><tbody id="ordRows">';
   wished.forEach(function(it){
     var d2 = [];
-    if(it.ref) d2.push('Ref. '+it.ref);
+    if(it.ref) d2.push(t('reference')+' '+it.ref);
     if(it.materials) d2.push(it.materials);
     if(it.size) d2.push(it.size);
     var img = imgMap[it.ref] || it.img || '';
@@ -1954,14 +2110,25 @@ async function openOrderSheet(){
   html += '</tbody></table>';
 
   html += '<div class="ordtotals">'
-        + '<div class="orow"><span>Subtotal</span><span class="v" id="ordSub">…</span></div>'
-        + '<div class="orow big"><span>Total</span><span class="v gold" id="ordTot">…</span></div>'
-        + '<div class="orow" id="ordTaxRow" style="display:none;font-size:10px"><span id="ordTaxK">Net (detax)</span><span class="v" id="ordTax">…</span></div>'
+        + '<div class="orow"><span>'+t('subtotal')+'</span><span class="v" id="ordSub">…</span></div>'
+        + '<div class="orow big"><span>'+t('total')+'</span><span class="v gold" id="ordTot">…</span></div>'
+        + '<div class="orow" id="ordTaxRow" style="display:none;font-size:10px"><span id="ordTaxK">'+t('netDetax')+'</span><span class="v" id="ordTax">…</span></div>'
         + '</div>';
 
+  var payEnabled = document.getElementById('wbPayEnable').checked;
+  if(payEnabled){
+    var payMethodSel = document.getElementById('wbPayMethod');
+    var payMethodLabel = payMethodSel.options[payMethodSel.selectedIndex].textContent;
+    var payDateVal = document.getElementById('wbPayDate').value;
+    var payDateLabel = payDateVal ? new Date(payDateVal+'T00:00:00').toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'}) : '—';
+    html += '<div class="ordpayment"><span class="ordpayment-k">'+t('payment')+'</span> '
+          + escapeHtml(payMethodLabel) + (payDateVal ? ' &middot; '+t('due')+' ' + payDateLabel : '')
+          + '</div>';
+  }
+
   html += '<div class="sheet-foot">';
-  html += '<b id="ordNoFoot">'+orderNo+'</b> &middot; '+wished.length+' watch'+(wished.length>1?'es':'')+' &middot; generated on '+today+'<br>';
-  html += 'Prices are official Audemars Piguet list prices in '+loc.label+', retrieved from audemarspiguet.com. Subject to change. This document is a sales order confirmation and does not constitute an invoice. Unofficial document &mdash; Audemars Piguet&reg; is a trademark of Audemars Piguet Holding SA.';
+  html += '<b id="ordNoFoot">'+orderNo+'</b> &middot; '+wished.length+' '+(wished.length>1?t('watches'):t('watch1'))+' &middot; '+t('generatedOn')+' '+today+'<br>';
+  html += t('legalNotice');
   html += '<div id="ordNetFx" style="margin-top:6px"></div>';
   html += '</div>';
 
@@ -1991,7 +2158,7 @@ async function openOrderSheet(){
     var p = entry && entry[wishLoc];
     var row = document.querySelector('#ordRows tr[data-ref="'+it.ref.replace(/"/g,'')+'"] td[data-price]');
     if(row){
-      row.textContent = p ? (wishLoc+' '+nfmt(p.amount, loc.fmt)) : 'On request';
+      row.textContent = p ? (wishLoc+' '+nfmt(p.amount, loc.fmt)) : t('onRequest');
     }
     if(p) sub += p.amount;
   }
@@ -2000,7 +2167,7 @@ async function openOrderSheet(){
   var net = sub / (1 + taxRate);
 
   if(showDetax){
-    document.getElementById('ordTaxK').textContent = 'Net (detax '+(taxRate*100).toFixed(1)+'%)';
+    document.getElementById('ordTaxK').textContent = t('netDetax').replace(')', ' '+(taxRate*100).toFixed(1)+'%)');
     document.getElementById('ordTax').textContent = wishLoc + ' ' + nfmt(net, loc.fmt);
     document.getElementById('ordTaxRow').style.display = 'flex';
   }
@@ -2013,11 +2180,11 @@ async function openOrderSheet(){
       var baseCHF = (wishLoc === 'CHF') ? fxBase : fxBase / fx.rates[wishLoc];
       var totEUR = baseCHF * fx.rates.EUR;
       var totUSD = baseCHF * fx.rates.USD;
-      fxBox.textContent = (showDetax ? 'Net (detax) at current rate — ' : 'At current rate — ')
+      fxBox.textContent = (showDetax ? t('netDetaxAtCurrentRate') : t('atCurrentRate')) + ' — '
                          + 'CHF '+nfmt(baseCHF,'de-CH')+' · EUR '+nfmt(totEUR,'de-DE')+' · USD '+nfmt(totUSD,'en-US')
                          + ' (1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD, '+(fx.source||'market')+')';
     } else {
-      fxBox.textContent = 'Equivalent in other currencies unavailable — exchange rates could not be retrieved.';
+      fxBox.textContent = t('fxUnavailable');
     }
   }
 
@@ -2058,7 +2225,7 @@ async function init(){
     if(it.views['special']) nSpec++;
   });
 
-  if(res.source==='live') statusItems.push({tone:'ok', html:'Live catalogue · '+items.length+' references ('+nCore+' current · '+nSpec+' special · '+nLeg+' legacy)'});
+  if(res.source==='live') statusItems.push({tone:'ok', html:t('liveCatalogue')+' · '+items.length+' '+t('references')+' ('+nCore+' '+t('current')+' · '+nSpec+' '+t('special')+' · '+nLeg+' '+t('legacy')+')'});
   else if(res.source==='cache') statusItems.push({tone:'ok', html:'Catalogue (cached) · '+items.length+' references · <button onclick="hardRefresh()">refresh</button>'});
   else statusItems.push({tone:'err', html:'AP feeds unreachable. Check the proxy in settings and retry.'});
 
@@ -2094,9 +2261,9 @@ async function init(){
     if(priceEngineOn){
       ps.previousElementSibling && (ps.previousElementSibling.className = 'dot ok');
       ps.parentElement.querySelector('.dot').className = 'dot ok';
-      ps.textContent = 'Official prices live: CHF · EUR · USD';
+      ps.textContent = t('pricesLive')+': CHF · EUR · USD';
     } else {
-      ps.textContent = 'Price feed not responding — shown as "on request"';
+      ps.textContent = t('priceNotResponding');
     }
   });
 }
@@ -2152,6 +2319,37 @@ document.getElementById('clearCache').onclick = function(){
   location.reload();
 };
 
+function applyLanguage(){
+  document.getElementById('langToggle').textContent = lang.toUpperCase();
+  document.documentElement.lang = lang;
+
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    el.placeholder = t(el.getAttribute('data-i18n-ph'));
+  });
+
+  updateWishHeader();
+  renderTabs();
+  renderViews();
+  renderLocPick();
+  renderBuyerTabs();
+  renderGrid();
+
+  var suppMsg = document.getElementById('suppLookupMsg');
+  if(suppMsg && !suppMsg.className){
+    suppMsg.textContent = liveStores.length ? (liveStores.length+' '+t('boutiquesLoaded')) : t('boutiquesWillLoad');
+  }
+}
+
+document.getElementById('langToggle').onclick = function(){
+  lang = (lang === 'en') ? 'it' : 'en';
+  saveLang();
+  applyLanguage();
+};
+applyLanguage();
+
 document.getElementById('wishToggle').onclick = function(){ setWishlistMode(!wishlistMode); };
 document.getElementById('wbClear').onclick = function(){
   if(!confirm('Clear the wishlist?')) return;
@@ -2163,6 +2361,12 @@ document.getElementById('wbClear').onclick = function(){
 document.getElementById('wbPrint').onclick = openOrderSheet;
 document.getElementById('wbDetax').addEventListener('change', function(e){
   document.getElementById('wbTaxRate').style.display = e.target.checked ? '' : 'none';
+});
+document.getElementById('wbPayEnable').addEventListener('change', function(e){
+  document.getElementById('wbPayFields').style.display = e.target.checked ? 'flex' : 'none';
+  var dateEl = document.getElementById('wbPayDate');
+  dateEl.disabled = !e.target.checked;
+  if(!e.target.checked) dateEl.value = '';
 });
 
 /* --- profilo venditore (Settings) --- */
@@ -2218,9 +2422,9 @@ populateBoutiquePicker();
   };
 })();
 if(liveStores.length){
-  document.getElementById('suppLookupMsg').textContent = liveStores.length+' official boutiques loaded.';
+  document.getElementById('suppLookupMsg').textContent = liveStores.length+' '+t('boutiquesLoaded');
 } else {
-  document.getElementById('suppLookupMsg').textContent = 'Official boutiques will load automatically when you open Wishlist.';
+  document.getElementById('suppLookupMsg').textContent = t('boutiquesWillLoad');
 }
 
 document.getElementById('suppPick').addEventListener('change', function(e){
@@ -2232,7 +2436,7 @@ document.getElementById('suppPick').addEventListener('change', function(e){
     addrEl.value = '';
     nameEl.focus();
     msg.className = '';
-    msg.textContent = 'Type the reseller name and address manually.';
+    msg.textContent = t('typeManually');
     return;
   }
   var hit = liveStores[Number(e.target.value)];
@@ -2240,7 +2444,7 @@ document.getElementById('suppPick').addEventListener('change', function(e){
   nameEl.value = hit.name;
   addrEl.value = hit.addr;
   msg.className = 'ok';
-  msg.innerHTML = 'Live from audemarspiguet.com — addresses can change; <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">verify on Google →</a>';
+  msg.innerHTML = t('officialBoutique')+' <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">'+t('verifyGoogle')+'</a>';
 });
 
 document.getElementById('sheetPrint').onclick = function(){ window.print(); };
