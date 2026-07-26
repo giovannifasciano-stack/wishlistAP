@@ -28,6 +28,8 @@
   --ok:#5fae7d;
   --warn:#c9a35f;
   --err:#c96a5f;
+  --ordine:#4fae9b;
+  --ordine-soft:rgba(79,174,155,.10);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -419,12 +421,13 @@ footer b{color:var(--oro);font-weight:500}
 
 #wishBar{
   display:none;flex-direction:column;gap:0;
-  padding:16px 20px 18px;border-bottom:1px solid var(--linea);background:rgba(19,20,23,.6);
+  padding:16px 20px 18px;margin:10px 20px;border:1.5px solid var(--ordine);border-radius:8px;
+  background:var(--ordine-soft);
 }
 #wishBar.on{display:flex}
-.wb-section{padding:14px 0;border-top:1px solid var(--linea)}
+.wb-section{padding:14px 0;border-top:1px solid rgba(79,174,155,.28)}
 .wb-section:first-child{border-top:none;padding-top:0}
-.wb-section-h{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--oro);margin-bottom:10px}
+.wb-section-h{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--ordine);margin-bottom:10px}
 .wb-section-row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end}
 .wb-field-inline{display:flex;flex-direction:column;gap:5px}
 .wb-field-inline label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--acciaio-soft)}
@@ -450,7 +453,7 @@ footer b{color:var(--oro);font-weight:500}
 .wb-actions button.ghost{background:none;color:var(--acciaio-soft);border-color:var(--linea);font-weight:400}
 .wb-actions button.ghost:hover{color:var(--err);border-color:var(--err)}
 @media (max-width:700px){
-  #wishBar{padding:12px 12px 14px}
+  #wishBar{padding:12px 12px 14px;margin:8px 12px}
   .wb-section-row{gap:12px}
   .wb-actions{flex-direction:column-reverse}
   .wb-actions button{width:100%}
@@ -479,7 +482,7 @@ footer b{color:var(--oro);font-weight:500}
   width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;
 }
 .wb-box{
-  background:var(--carbone);border:1px solid var(--linea);border-radius:6px;
+  background:var(--carbone);border:1px solid rgba(79,174,155,.4);border-radius:6px;
   padding:12px 14px;display:flex;flex-direction:column;gap:8px;
 }
 .wb-box-h{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--acciaio-soft)}
