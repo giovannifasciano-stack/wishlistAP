@@ -249,6 +249,17 @@ footer b{color:var(--oro);font-weight:500}
 .sheet-head{text-align:center;padding-bottom:14px;border-bottom:1px solid #e3ded4}
 .sheet-head img{height:26px;width:auto}
 .sheet-head .hfallback{font-family:'Archivo';font-weight:700;font-stretch:80%;letter-spacing:.2em;font-size:17px}
+
+.ordhead{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:12px;border-bottom:2px solid #14161a}
+.ordhead-brand img{height:24px;width:auto}
+.ordhead-brand .hfallback{font-family:'Archivo';font-weight:700;font-stretch:80%;letter-spacing:.16em;font-size:15px}
+.ordhead-meta{text-align:right;flex:none}
+.ordh-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#9a7b3f}
+.ordh-sub input{
+  font-family:'Archivo';font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;
+  text-align:right;border:none;background:transparent;color:#14161a;width:180px;outline:none;padding:2px 0;
+}
+.ordh-date{font-size:10.5px;color:#6d7178;margin-top:2px}
 .sheet-photo{
   margin:16px auto 4px;height:210px;width:100%;
   display:flex;align-items:center;justify-content:center;
@@ -368,6 +379,9 @@ footer b{color:var(--oro);font-weight:500}
   .sheet-ref{font-size:10.5px}
   .sheet-cols{gap:16px;margin-top:14px}
   .sheet-col{min-width:0}
+  .ordhead{flex-direction:column;gap:8px}
+  .ordhead-meta{text-align:left}
+  .ordh-sub input{text-align:left;width:100%}
   .srow{font-size:11px;padding:5px 0}
   .taxtable{font-size:10px;min-width:520px}
   .taxnote,.sheet-foot{font-size:8.5px}
@@ -443,21 +457,21 @@ footer b{color:var(--oro);font-weight:500}
 }
 
 /* ---------- tabella ordine (dentro il foglio stampabile) ---------- */
-.ordtable{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.ordtable{width:100%;border-collapse:collapse;font-size:11px;margin-top:2px}
 .ordtable th{
   text-align:left;font-weight:500;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
-  color:#9a9ea5;padding:6px 6px 6px 0;border-bottom:1px solid #e3ded4;
+  color:#9a9ea5;padding:7px 6px 7px 0;border-bottom:1px solid #e3ded4;background:#faf9f6;
 }
 .ordtable th.r,.ordtable td.r{text-align:right;padding-left:8px}
-.ordtable td{padding:9px 6px 9px 0;border-bottom:1px solid #f1ede6;color:#14161a;vertical-align:top}
-.ordtable td.ph{width:52px}
-.ordtable td.ph .box{width:44px;height:44px;background:#f7f5f0;border:1px solid #e3ded4;display:grid;place-items:center;overflow:hidden}
+.ordtable td{padding:7px 6px 7px 0;border-bottom:1px solid #f1ede6;color:#14161a;vertical-align:top}
+.ordtable td.ph{width:44px}
+.ordtable td.ph .box{width:38px;height:38px;background:#f7f5f0;border:1px solid #e3ded4;display:grid;place-items:center;overflow:hidden}
 .ordtable td.ph img{max-width:100%;max-height:100%;object-fit:contain}
-.ordtable .d1{font-family:'Archivo';font-weight:600;font-size:11.5px}
-.ordtable .d2{font-size:9.5px;color:#6d7178;margin-top:2px}
-.ordtotals{margin-top:16px;margin-left:auto;width:280px}
-.ordtotals .orow{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f1ede6}
-.ordtotals .orow.big{border-bottom:none;border-top:2px solid #14161a;margin-top:4px;padding-top:10px;font-size:14px;font-weight:700}
+.ordtable .d1{font-family:'Archivo';font-weight:600;font-size:11px}
+.ordtable .d2{font-size:9px;color:#6d7178;margin-top:1px}
+.ordtotals{margin-top:12px;margin-left:auto;width:270px}
+.ordtotals .orow{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid #f1ede6}
+.ordtotals .orow.big{border-bottom:none;border-top:2px solid #14161a;margin-top:3px;padding-top:8px;font-size:14px;font-weight:700}
 .ordtotals .orow .v.gold{color:#8a6d3b}
 
 /* ---------- parti ordine: due riquadri (fornitore / acquirente) ---------- */
@@ -1894,21 +1908,20 @@ async function openOrderSheet(){
   var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
 
   var html = '';
-  html += '<div class="sheet-head">';
-  html += '<img src="'+AP_LOGO_DARK+'" alt="Audemars Piguet" onerror="this.outerHTML=\'<div class=&quot;hfallback&quot;>AUDEMARS PIGUET</div>\'">';
-  html += '</div>';
-  html += '<div class="sheet-eyebrow">Order confirmation</div>';
-  html += '<div class="sheet-title" style="font-size:19px">'
-        + '<input id="ordNoInput" value="'+escapeHtml(orderNo)+'" style="text-align:center;font:inherit;color:inherit;letter-spacing:inherit;border:none;background:transparent;width:100%;outline:none">'
+  html += '<div class="ordhead">';
+  html += '<div class="ordhead-brand"><img src="'+AP_LOGO_DARK+'" alt="Audemars Piguet" onerror="this.outerHTML=\'<div class=&quot;hfallback&quot;>AUDEMARS PIGUET</div>\'"></div>';
+  html += '<div class="ordhead-meta">'
+        + '<div class="ordh-label">Order confirmation</div>'
+        + '<div class="ordh-sub"><input id="ordNoInput" value="'+escapeHtml(orderNo)+'"></div>'
+        + '<div class="ordh-date">'+today+'</div>'
         + '</div>';
-  html += '<div class="sheet-ref">'+today+'</div>';
-  html += '<div class="sheet-rule"></div>';
+  html += '</div>';
 
   var suppName = document.getElementById('suppName').value.trim();
   var suppAddr = document.getElementById('suppAddr').value.trim();
   var buyer = getBuyer();
 
-  html += '<div class="sheet-cols" style="margin-top:18px">';
+  html += '<div class="sheet-cols" style="margin-top:14px">';
   html += '<div class="sheet-col"><div class="sheet-h">Sold by</div>'
         + '<div class="partyname">'+escapeHtml(suppName || '—')+'</div>'
         + (suppAddr ? '<div class="partyaddr">'+escapeHtml(suppAddr)+'</div>' : '')
