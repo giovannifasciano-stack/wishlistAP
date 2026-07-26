@@ -1900,7 +1900,7 @@ function openSheet(it, imgEl, withTax){
   var body = document.getElementById('sheetBody');
   var src = hiRes((imgEl && imgEl.src) || imgMap[it.ref] || it.img || '');
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
-  printFilenameBase = 'AP ' + it.ref.replace(/[^A-Za-z0-9-]/g,'') + ' ' + fileTimestamp();
+  printFilenameBase = 'AP_' + it.ref.replace(/[^A-Za-z0-9-]/g,'');
 
   var specs = [
     [t('collection'), it.collName],
@@ -2086,7 +2086,7 @@ async function openOrderSheet(){
 
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
   var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
-  printFilenameBase = 'AP Order ' + orderNo.replace(/[^A-Za-z0-9-]/g,'') + ' ' + fileTimestamp();
+  printFilenameBase = 'Order_' + orderNo.replace(/[^A-Za-z0-9-]/g,'');
 
   var html = '';
   html += '<div class="ordhead">';
