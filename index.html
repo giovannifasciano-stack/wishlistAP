@@ -1900,7 +1900,7 @@ function openSheet(it, imgEl, withTax){
   var body = document.getElementById('sheetBody');
   var src = hiRes((imgEl && imgEl.src) || imgMap[it.ref] || it.img || '');
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
-  printFilenameBase = 'AP_' + it.ref.replace(/[^A-Za-z0-9-]/g,'');
+  printFilenameBase = null;
 
   var specs = [
     [t('collection'), it.collName],
@@ -2476,7 +2476,7 @@ document.getElementById('suppPick').addEventListener('change', function(e){
 });
 
 document.getElementById('sheetPrint').onclick = function(){
-  document.title = printFilenameBase;
+  document.title = printFilenameBase || originalTitle;
   window.print();
 };
 window.addEventListener('afterprint', function(){ document.title = originalTitle; });
