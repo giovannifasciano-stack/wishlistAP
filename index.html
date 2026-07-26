@@ -1920,22 +1920,24 @@ async function openOrderSheet(){
   }
 
   var total = sub;   // il totale d'ordine è sempre il prezzo ufficiale pieno
+  var net = sub / (1 + taxRate);
 
   if(showDetax){
-    var net = sub / (1 + taxRate);
     document.getElementById('ordTaxK').textContent = 'Net (detax '+(taxRate*100).toFixed(1)+'%)';
     document.getElementById('ordTax').textContent = wishLoc + ' ' + nfmt(net, loc.fmt);
     document.getElementById('ordTaxRow').style.display = 'flex';
   }
 
+  var fxBase = showDetax ? net : total;
   var fx = await getRates();
   var fxBox = document.getElementById('ordNetFx');
   if(fxBox){
     if(fx){
-      var baseCHF = (wishLoc === 'CHF') ? total : total / fx.rates[wishLoc];
+      var baseCHF = (wishLoc === 'CHF') ? fxBase : fxBase / fx.rates[wishLoc];
       var totEUR = baseCHF * fx.rates.EUR;
       var totUSD = baseCHF * fx.rates.USD;
-      fxBox.textContent = 'At current rate — CHF '+nfmt(baseCHF,'de-CH')+' · EUR '+nfmt(totEUR,'de-DE')+' · USD '+nfmt(totUSD,'en-US')
+      fxBox.textContent = (showDetax ? 'Net (detax) at current rate — ' : 'At current rate — ')
+                         + 'CHF '+nfmt(baseCHF,'de-CH')+' · EUR '+nfmt(totEUR,'de-DE')+' · USD '+nfmt(totUSD,'en-US')
                          + ' (1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD, '+(fx.source||'market')+')';
     } else {
       fxBox.textContent = 'Equivalent in other currencies unavailable — exchange rates could not be retrieved.';
