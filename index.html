@@ -404,10 +404,16 @@ footer b{color:var(--oro);font-weight:500}
 #wishToggle .wc:empty{display:none}
 
 #wishBar{
-  display:none;flex-wrap:wrap;align-items:center;gap:10px;
-  padding:12px 20px;border-bottom:1px solid var(--linea);background:rgba(19,20,23,.5);
+  display:none;flex-direction:column;gap:0;
+  padding:16px 20px 18px;border-bottom:1px solid var(--linea);background:rgba(19,20,23,.6);
 }
 #wishBar.on{display:flex}
+.wb-section{padding:14px 0;border-top:1px solid var(--linea)}
+.wb-section:first-child{border-top:none;padding-top:0}
+.wb-section-h{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--oro);margin-bottom:10px}
+.wb-section-row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end}
+.wb-field-inline{display:flex;flex-direction:column;gap:5px}
+.wb-field-inline label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--acciaio-soft)}
 #wishBar .wb-lbl{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--acciaio-soft)}
 .loc-pick{display:flex;gap:6px}
 .loc-pick button{
@@ -416,22 +422,24 @@ footer b{color:var(--oro);font-weight:500}
 }
 .loc-pick button.on{border-color:var(--oro);color:var(--oro)}
 #wishBar .wb-tax{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--acciaio-soft)}
-#wishBar select, #wishBar input[type=number]{
+#wishBar select, #wishBar input[type=number], #wishBar input[type=text], #wishBar #wbOrderNo{
   background:var(--carbone);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);
-  padding:6px 8px;font-size:11.5px;outline:none;
+  padding:7px 9px;font-size:12px;outline:none;font-family:inherit;
 }
+#wishBar #wbOrderNo{width:170px}
 #wishBar input[type=number]{width:58px;text-align:right}
-#wishBar .wb-actions{margin-left:auto;display:flex;gap:8px}
-#wishBar .wb-actions button{
+.wb-actions{margin-top:14px;display:flex;gap:8px;justify-content:flex-end}
+.wb-actions button{
   background:var(--oro);border:1px solid var(--oro);border-radius:2px;color:#14161a;font-weight:600;
   padding:8px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
 }
-#wishBar .wb-actions button.ghost{background:none;color:var(--acciaio-soft);border-color:var(--linea);font-weight:400}
-#wishBar .wb-actions button.ghost:hover{color:var(--err);border-color:var(--err)}
+.wb-actions button.ghost{background:none;color:var(--acciaio-soft);border-color:var(--linea);font-weight:400}
+.wb-actions button.ghost:hover{color:var(--err);border-color:var(--err)}
 @media (max-width:700px){
-  #wishBar{padding:10px 12px;gap:8px}
-  #wishBar .wb-actions{width:100%;margin-left:0}
-  #wishBar .wb-actions button{flex:1}
+  #wishBar{padding:12px 12px 14px}
+  .wb-section-row{gap:12px}
+  .wb-actions{flex-direction:column-reverse}
+  .wb-actions button{width:100%}
 }
 
 /* ---------- tabella ordine (dentro il foglio stampabile) ---------- */
@@ -455,7 +463,6 @@ footer b{color:var(--oro);font-weight:500}
 /* ---------- parti ordine: due riquadri (fornitore / acquirente) ---------- */
 .wb-boxes{
   width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;
-  padding-top:12px;margin-top:10px;border-top:1px solid var(--linea);
 }
 .wb-box{
   background:var(--carbone);border:1px solid var(--linea);border-radius:6px;
@@ -512,43 +519,64 @@ footer b{color:var(--oro);font-weight:500}
     </div>
   </div>
   <div id="wishBar">
-    <span class="wb-lbl">Buying from</span>
-    <div class="loc-pick" id="locPick"></div>
-    <div class="wb-tax">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-        <input type="checkbox" id="wbDetax" style="width:auto">
-        <span>Show detax (net of VAT)</span>
-      </label>
-      <input id="wbTaxRate" type="number" step="0.1" min="0" value="8.1" style="display:none">%
+
+    <div class="wb-section">
+      <div class="wb-section-h">Order</div>
+      <div class="wb-section-row">
+        <div class="wb-field-inline">
+          <label>Order no.</label>
+          <input id="wbOrderNo" autocomplete="off">
+        </div>
+        <div class="wb-field-inline">
+          <label>Buying from</label>
+          <div class="loc-pick" id="locPick"></div>
+        </div>
+      </div>
     </div>
+
+    <div class="wb-section">
+      <div class="wb-section-h">Tax</div>
+      <div class="wb-tax">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="wbDetax" style="width:auto">
+          <span>Show detax (net of VAT)</span>
+        </label>
+        <input id="wbTaxRate" type="number" step="0.1" min="0" value="8.1" style="display:none">%
+      </div>
+    </div>
+
+    <div class="wb-section">
+      <div class="wb-section-h">Parties</div>
+      <div class="wb-boxes">
+        <div class="wb-box">
+          <div class="wb-box-h">Sold by</div>
+          <select id="suppPick"></select>
+          <input id="suppName" placeholder="Name (if manual)" autocomplete="off">
+          <span id="suppLookupMsg"></span>
+          <textarea id="suppAddr" placeholder="Street, postcode, city, country · phone"></textarea>
+        </div>
+
+        <div class="wb-box">
+          <div class="wb-box-h">Buyer</div>
+          <div class="wb-buyer-tabs" id="buyerTabs">
+            <button data-loc="miami">🇺🇸 <span id="buyerNameUS"></span></button>
+            <button data-loc="paradiso">🇨🇭 <span id="buyerNameCH"></span></button>
+          </div>
+          <div class="partyaddr" id="buyerPreview" style="margin:8px 0 0"></div>
+          <div class="wb-manual">
+            <div class="wb-manual-h">Or enter a different buyer manually</div>
+            <input id="custNameManual" placeholder="Buyer name" autocomplete="off">
+            <textarea id="custAddrManual" placeholder="Address"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="wb-actions">
       <button class="ghost" id="wbClear">Clear wishlist</button>
       <button id="wbPrint">Print order</button>
     </div>
 
-    <div class="wb-boxes">
-      <div class="wb-box">
-        <div class="wb-box-h">Sold by</div>
-        <select id="suppPick"></select>
-        <input id="suppName" placeholder="Name (if manual)" autocomplete="off">
-        <span id="suppLookupMsg"></span>
-        <textarea id="suppAddr" placeholder="Street, postcode, city, country · phone"></textarea>
-      </div>
-
-      <div class="wb-box">
-        <div class="wb-box-h">Buyer</div>
-        <div class="wb-buyer-tabs" id="buyerTabs">
-          <button data-loc="miami">🇺🇸 <span id="buyerNameUS"></span></button>
-          <button data-loc="paradiso">🇨🇭 <span id="buyerNameCH"></span></button>
-        </div>
-        <div class="partyaddr" id="buyerPreview" style="margin:8px 0 0"></div>
-        <div class="wb-manual">
-          <div class="wb-manual-h">Or enter a different buyer manually</div>
-          <input id="custNameManual" placeholder="Buyer name" autocomplete="off">
-          <textarea id="custAddrManual" placeholder="Address"></textarea>
-        </div>
-      </div>
-    </div>
   </div>
   <div class="navrow">
     <nav class="tabs" id="tabs" aria-label="Collections"></nav>
@@ -1306,6 +1334,8 @@ function toggleOrderPanel(){
   orderPanelOpen = !orderPanelOpen;
   document.getElementById('wishBar').classList.toggle('on', orderPanelOpen);
   ensureStoresLoaded();
+  var noEl = document.getElementById('wbOrderNo');
+  if(orderPanelOpen && noEl && !noEl.value){ noEl.value = makeOrderNo(); }
   renderGrid();
 }
 
@@ -1861,7 +1891,7 @@ async function openOrderSheet(){
   if(!loc) loc = PRICE_LOCALES[0];
 
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
-  var orderNo = makeOrderNo();
+  var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
 
   var html = '';
   html += '<div class="sheet-head">';
