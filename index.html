@@ -1284,10 +1284,18 @@ function renderLocPick(){
 }
 
 var orderPanelOpen = false;
+var storesLoadStarted = false;
+
+function ensureStoresLoaded(){
+  if(liveStores.length || storesLoadStarted) return;
+  storesLoadStarted = true;
+  loadStoresDirectory(document.getElementById('suppLookupMsg'));
+}
 
 function setWishlistMode(on){
   wishlistMode = on;
   if(!on){ orderPanelOpen = false; document.getElementById('wishBar').classList.remove('on'); }
+  else{ ensureStoresLoaded(); }
   updateWishHeader();
   renderLocPick();
   renderTabs();
@@ -1297,6 +1305,7 @@ function setWishlistMode(on){
 function toggleOrderPanel(){
   orderPanelOpen = !orderPanelOpen;
   document.getElementById('wishBar').classList.toggle('on', orderPanelOpen);
+  ensureStoresLoaded();
   renderGrid();
 }
 
@@ -2163,13 +2172,7 @@ populateBoutiquePicker();
 if(liveStores.length){
   document.getElementById('suppLookupMsg').textContent = liveStores.length+' official boutiques loaded.';
 } else {
-  document.getElementById('suppLookupMsg').innerHTML = 'Directory not loaded yet. <a href="#" id="loadStoresLink" style="color:inherit;text-decoration:underline">Load official boutiques (~1 min) →</a>';
-  document.getElementById('loadStoresLink').onclick = function(e){
-    e.preventDefault();
-    var msg = document.getElementById('suppLookupMsg');
-    msg.className = '';
-    loadStoresDirectory(msg);
-  };
+  document.getElementById('suppLookupMsg').textContent = 'Official boutiques will load automatically when you open Wishlist.';
 }
 
 document.getElementById('suppPick').addEventListener('change', function(e){
