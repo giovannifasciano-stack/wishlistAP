@@ -1507,6 +1507,8 @@ function cardFor(it){
 
 function renderGrid(){
   var content = document.getElementById('content');
+  var wb = document.getElementById('wishBar');
+  if(wb && wb.parentNode === content){ document.body.appendChild(wb); } // salva il nodo prima di svuotare content
   content.innerHTML = '';
   var filtered = visibleItems();
 
