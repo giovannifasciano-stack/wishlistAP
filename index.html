@@ -953,6 +953,14 @@ function t(key){
 }
 function saveLang(){ try{ localStorage.setItem('apwish_lang', lang); }catch(e){} }
 
+var printFilenameBase = 'AP';
+var originalTitle = document.title;
+function fileTimestamp(){
+  var d = new Date();
+  var p = function(n){ return String(n).padStart(2,'0'); };
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+p(d.getMinutes());
+}
+
 var PRICE_LOCALES = [
   {label:'CHF', flag:'🇨🇭', site:'ch/en', cc:'ch', fmt:'de-CH'},
   {label:'EUR', flag:'🇪🇺', site:'it/it', cc:'it', fmt:'de-DE'},
@@ -1892,6 +1900,7 @@ function openSheet(it, imgEl, withTax){
   var body = document.getElementById('sheetBody');
   var src = hiRes((imgEl && imgEl.src) || imgMap[it.ref] || it.img || '');
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+  printFilenameBase = 'AP ' + it.ref.replace(/[^A-Za-z0-9-]/g,'') + ' ' + fileTimestamp();
 
   var specs = [
     [t('collection'), it.collName],
@@ -2077,6 +2086,7 @@ async function openOrderSheet(){
 
   var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
   var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
+  printFilenameBase = 'AP Order ' + orderNo.replace(/[^A-Za-z0-9-]/g,'') + ' ' + fileTimestamp();
 
   var html = '';
   html += '<div class="ordhead">';
@@ -2207,6 +2217,7 @@ async function openOrderSheet(){
 function closeSheet(){
   document.getElementById('sheetOverlay').classList.remove('open');
   document.body.style.overflow = '';
+  document.title = originalTitle;
 }
 
 /* ---------- init ---------- */
@@ -2464,7 +2475,11 @@ document.getElementById('suppPick').addEventListener('change', function(e){
   msg.innerHTML = t('officialBoutique')+' <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">'+t('verifyGoogle')+'</a>';
 });
 
-document.getElementById('sheetPrint').onclick = function(){ window.print(); };
+document.getElementById('sheetPrint').onclick = function(){
+  document.title = printFilenameBase;
+  window.print();
+};
+window.addEventListener('afterprint', function(){ document.title = originalTitle; });
 document.getElementById('sheetClose').onclick = closeSheet;
 document.getElementById('sheetOverlay').addEventListener('click', function(e){
   if(e.target === this) closeSheet();
