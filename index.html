@@ -1283,12 +1283,20 @@ function renderLocPick(){
   });
 }
 
+var orderPanelOpen = false;
+
 function setWishlistMode(on){
   wishlistMode = on;
-  document.getElementById('wishBar').classList.toggle('on', on);
+  if(!on){ orderPanelOpen = false; document.getElementById('wishBar').classList.remove('on'); }
   updateWishHeader();
   renderLocPick();
   renderTabs();
+  renderGrid();
+}
+
+function toggleOrderPanel(){
+  orderPanelOpen = !orderPanelOpen;
+  document.getElementById('wishBar').classList.toggle('on', orderPanelOpen);
   renderGrid();
 }
 
@@ -1504,7 +1512,18 @@ function renderGrid(){
     if(filtered.length){
       var h0 = document.createElement('div');
       h0.className = 'famTitle';
-      h0.innerHTML = 'Wishlist <small>'+filtered.length+' watch'+(filtered.length>1?'es':'')+'</small>';
+      h0.style.display = 'flex';
+      h0.style.alignItems = 'baseline';
+      h0.style.justifyContent = 'space-between';
+      h0.style.flexWrap = 'wrap';
+      h0.style.gap = '10px';
+      h0.innerHTML = '<span>Wishlist <small>'+filtered.length+' watch'+(filtered.length>1?'es':'')+'</small></span>';
+      var ordBtn = document.createElement('button');
+      ordBtn.id = 'toggleOrderBtn';
+      ordBtn.textContent = orderPanelOpen ? 'Close order' : 'Create order';
+      ordBtn.style.cssText = 'background:var(--oro);border:1px solid var(--oro);color:#14161a;font-weight:600;padding:8px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;white-space:nowrap';
+      ordBtn.onclick = toggleOrderPanel;
+      h0.appendChild(ordBtn);
       content.appendChild(h0);
       var rule0 = document.createElement('div');
       rule0.className = 'famRule';
@@ -1514,6 +1533,7 @@ function renderGrid(){
       filtered.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
       filtered.forEach(function(it){ grid0.appendChild(cardFor(it)); });
       content.appendChild(grid0);
+      content.appendChild(document.getElementById('wishBar'));
     }
     return;
   }
