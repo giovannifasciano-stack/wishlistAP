@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="wishlistAP">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="apple-touch-icon-512.png">
+<link rel="icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<title>showcaseAP — Audemars Piguet Collections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --nero:#0a0a0b;
+  --carbone:#131417;
+  --grafite:#1c1e23;
+  --linea:#26282e;
+  --acciaio:#c9cdd3;
+  --acciaio-soft:#8a8f99;
+  --blu-notte:#1b2740;
+  --blu-vivo:#3f5f9e;
+  --oro:#c8a86a;
+  --ok:#5fae7d;
+  --warn:#c9a35f;
+  --err:#c96a5f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{
+  background:var(--nero);
+  color:var(--acciaio);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:14px;
+  min-height:100vh;
+}
+a{color:var(--oro);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(to bottom, rgba(10,10,11,.97), rgba(10,10,11,.88));
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--linea);
+  padding:14px 20px 0;
+  padding-top:max(14px, env(safe-area-inset-top));
+}
+.brandrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ap-brand{display:flex;align-items:center;min-height:44px}
+.ap-logo{height:42px;width:auto;display:block}
+@media (max-width:600px){.ap-logo{height:32px}}
+.fb-title{
+  display:block;font-family:'Archivo',sans-serif;font-weight:700;font-stretch:80%;
+  font-size:clamp(16px,3vw,22px);letter-spacing:.18em;color:#fff;
+}
+.fb-sub{display:block;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--oro);text-align:center}
+.hdr-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+#search{
+  background:var(--carbone);border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio);padding:8px 12px;font-size:13px;letter-spacing:.05em;
+  width:min(240px,48vw);outline:none;
+}
+#search:focus{border-color:var(--blu-vivo)}
+#gearBtn{
+  background:none;border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio-soft);padding:8px 10px;font-size:13px;
+}
+#gearBtn:hover,#gearBtn:focus-visible{color:var(--oro);border-color:var(--oro)}
+:focus-visible{outline:2px solid var(--blu-vivo);outline-offset:2px}
+
+/* ---------- tabs + viste ---------- */
+.navrow{display:flex;flex-direction:column;align-items:stretch;margin-top:10px}
+nav.tabs{
+  display:flex;gap:2px;width:100%;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--acciaio-soft);padding:10px 14px;
+  font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
+}
+.tab:hover{color:var(--acciaio)}
+.tab.active{color:#fff;border-bottom-color:var(--oro)}
+.tab .n{color:var(--oro);font-size:10px;margin-left:5px}
+.views{
+  display:flex;gap:6px;width:100%;
+  padding:8px 0;margin-top:2px;border-top:1px solid var(--linea);
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.views::-webkit-scrollbar{display:none}
+.views:before{
+  content:'View';flex:none;align-self:center;
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--acciaio-soft);
+  margin-right:4px;
+}
+.chip{
+  background:none;border:1px solid var(--linea);border-radius:20px;
+  color:var(--acciaio-soft);padding:5px 13px;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;
+}
+.chip.on{border-color:var(--oro);color:var(--oro)}
+
+/* ---------- status ---------- */
+#statusBar{padding:10px 20px;display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;letter-spacing:.05em;color:var(--acciaio-soft)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.err{background:var(--err)}
+#statusBar button{background:none;border:none;color:var(--oro);font-size:11.5px;letter-spacing:.05em;text-decoration:underline;padding:0}
+#tsLabel{margin-left:auto}
+
+/* ---------- loader ---------- */
+#loader{padding:80px 20px;text-align:center}
+.octa-spin{
+  width:44px;height:44px;margin:0 auto 22px;
+  background:var(--blu-notte);border:1px solid var(--blu-vivo);
+  clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+  animation:spin 2.4s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadMsg{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--acciaio-soft)}
+
+/* ---------- grid ---------- */
+main{padding:20px;max-width:1400px;margin:0 auto}
+.famTitle{
+  font-family:'Archivo';font-weight:300;font-stretch:80%;
+  font-size:clamp(20px,3.6vw,30px);letter-spacing:.18em;text-transform:uppercase;color:#fff;
+  margin:34px 0 6px;display:flex;align-items:baseline;gap:12px;
+}
+.famTitle small{font-size:11px;letter-spacing:.2em;color:var(--oro)}
+.famRule{height:1px;background:linear-gradient(90deg,var(--oro),transparent 60%);margin-bottom:20px}
+.grid{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fill,minmax(215px,1fr));
+}
+.card{
+  background:var(--carbone);border:1px solid var(--linea);border-radius:2px;
+  padding:16px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  transition:border-color .18s, transform .18s;
+  position:relative;height:100%;
+}
+.card:hover{border-color:var(--blu-vivo);transform:translateY(-2px)}
+.badge{
+  position:absolute;top:10px;right:10px;
+  font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+  border:1px solid var(--linea);border-radius:2px;padding:2px 7px;color:var(--acciaio-soft);
+}
+.badge.special{border-color:var(--oro);color:var(--oro)}
+.badge.legacy{border-color:var(--acciaio-soft)}
+.octa-frame{
+  width:100%;aspect-ratio:1;max-width:200px;
+  background:radial-gradient(circle at 50% 38%, var(--grafite), var(--nero) 78%);
+  clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+  display:grid;place-items:center;overflow:hidden;position:relative;
+}
+.octa-frame img{width:76%;height:88%;object-fit:contain;transition:transform .25s}
+.card:hover .octa-frame img{transform:scale(1.06)}
+.octa-frame .noimg{font-size:10px;letter-spacing:.16em;color:var(--acciaio-soft);text-transform:uppercase;text-align:center;padding:0 12px}
+.ptitle{
+  font-family:'Archivo';font-weight:600;font-size:12px;letter-spacing:.08em;
+  color:#fff;text-align:center;text-transform:uppercase;
+  height:3.9em;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.ref{font-size:11px;letter-spacing:.06em;color:var(--acciaio-soft);text-align:center;word-break:break-all;min-height:1.3em}
+.meta{display:flex;gap:8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acciaio-soft);text-align:center;flex-wrap:wrap;justify-content:center;min-height:1.2em}
+.meta .mat{color:var(--oro)}
+.prezzo{
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--acciaio-soft);
+  border-top:1px solid var(--linea);width:100%;text-align:center;padding-top:9px;
+  margin-top:auto;min-height:63px;display:flex;align-items:center;justify-content:center;
+}
+.prezzo button{
+  background:none;border:none;color:var(--oro);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;padding:0;text-decoration:underline;text-underline-offset:3px;
+}
+.prezzo button:hover{color:#fff}
+.prezzo .plist{display:flex;flex-direction:column;gap:3px;width:100%}
+.prezzo .prow{display:flex;justify-content:space-between;gap:10px}
+.prezzo .prow .cur{color:var(--acciaio-soft)}
+.prezzo .prow .val{color:var(--oro);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.prezzo .prow .val.muted{color:#3a3d44}
+.prezzo .onreq{color:var(--acciaio-soft)}
+#emptyMsg{padding:60px 20px;text-align:center;color:var(--acciaio-soft);letter-spacing:.1em;font-size:12.5px;display:none}
+
+/* ---------- settings panel ---------- */
+#panel{
+  position:fixed;inset:0 0 0 auto;width:min(380px,92vw);z-index:80;
+  background:var(--carbone);border-left:1px solid var(--linea);
+  transform:translateX(102%);transition:transform .25s;
+  padding:26px 22px;overflow-y:auto;
+}
+#panel.open{transform:none}
+@supports(padding:max(0px)){#panel{padding-right:max(22px, env(safe-area-inset-right));padding-bottom:max(26px, env(safe-area-inset-bottom))}}
+#panel h2{font-family:'Archivo';font-weight:600;font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:#fff;margin-bottom:20px}
+#panel label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--acciaio-soft);margin:16px 0 6px}
+#panel input{
+  width:100%;background:var(--nero);border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio);padding:9px 11px;font-size:12.5px;outline:none;
+}
+#panel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+#panel button{
+  background:var(--blu-notte);border:1px solid var(--blu-vivo);border-radius:2px;
+  color:#fff;padding:9px 14px;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+}
+#panel button.ghost{background:none;border-color:var(--linea);color:var(--acciaio-soft)}
+#panel button.ghost:hover{color:var(--oro);border-color:var(--oro)}
+#testOut{margin-top:12px;font-size:11px;letter-spacing:.03em;color:var(--acciaio-soft);line-height:1.6;white-space:pre-wrap;word-break:break-all}
+#closePanel{position:absolute;top:14px;right:14px;background:none!important;border:none!important;color:var(--acciaio-soft);font-size:18px;padding:4px 8px}
+
+footer{padding:40px 20px 30px;text-align:center;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--acciaio-soft)}
+footer b{color:var(--oro);font-weight:500}
+
+/* ---------- interazioni card ---------- */
+.octa-frame{cursor:zoom-in}
+.prezzo[role=button]{cursor:pointer}
+.prezzo[role=button]:hover .cur{color:var(--oro)}
+.ref{cursor:pointer;transition:color .15s}
+.ref:hover{color:var(--oro)}
+
+/* ---------- scheda stampabile ---------- */
+#sheetOverlay{
+  position:fixed;inset:0;z-index:200;display:none;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(5px);
+  overflow:auto;padding:28px 16px 60px;
+}
+#sheetOverlay.open{display:block}
+.sheet-actions{
+  position:sticky;top:0;z-index:5;max-width:780px;margin:0 auto 12px;
+  display:flex;gap:8px;justify-content:flex-end;
+  padding:10px 0;background:rgba(10,10,11,.92);backdrop-filter:blur(8px);
+}
+.sheet-actions button{
+  background:var(--blu-notte);border:1px solid var(--blu-vivo);border-radius:2px;color:#fff;
+  padding:9px 18px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+}
+.sheet-actions button.ghost{background:none;border-color:rgba(255,255,255,.25);color:#d6d9de}
+.sheet{
+  background:#fff;color:#14161a;max-width:800px;margin:0 auto;
+  padding:30px 38px 24px;box-shadow:0 24px 70px rgba(0,0,0,.55);
+  print-color-adjust:exact;-webkit-print-color-adjust:exact;
+  display:flex;flex-direction:column;min-height:min(970px, 90vh);
+}
+.sheet-head{text-align:center;padding-bottom:14px;border-bottom:1px solid #e3ded4}
+.sheet-head img{height:26px;width:auto}
+.sheet-head .hfallback{font-family:'Archivo';font-weight:700;font-stretch:80%;letter-spacing:.2em;font-size:17px}
+.sheet-photo{
+  margin:16px auto 4px;height:210px;width:100%;
+  display:flex;align-items:center;justify-content:center;
+}
+.sheet-photo img{max-height:210px;max-width:60%;object-fit:contain}
+.sheet-eyebrow{
+  text-align:center;font-size:9.5px;letter-spacing:.3em;text-transform:uppercase;color:#9a7b3f;margin-top:8px;
+}
+.sheet-title{
+  text-align:center;font-family:'Archivo';font-weight:600;font-stretch:85%;
+  font-size:21px;letter-spacing:.05em;margin:5px 0 4px;color:#14161a;
+}
+.sheet-ref{text-align:center;font-size:11.5px;letter-spacing:.16em;color:#6d7178}
+.sheet-rule{height:1px;background:#e3ded4;margin:16px 0 0}
+.sheet-cols{display:flex;gap:26px;margin-top:16px;flex-wrap:wrap}
+.sheet-col{flex:1;min-width:230px}
+.sheet-h{
+  font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:#9a7b3f;
+  padding-bottom:6px;border-bottom:1px solid #e3ded4;margin-bottom:8px;
+}
+.srow{display:flex;justify-content:space-between;gap:14px;padding:5px 0;font-size:11.5px;border-bottom:1px solid #f1ede6}
+.srow .k{color:#6d7178;letter-spacing:.06em}
+.srow .v{color:#14161a;text-align:right;font-weight:500}
+.srow .v.gold{color:#8a6d3b;font-variant-numeric:tabular-nums}
+.sheet-foot{
+  margin-top:auto;padding-top:10px;border-top:1px solid #e3ded4;
+  font-size:9px;line-height:1.6;color:#8b8f96;letter-spacing:.03em;
+}
+.sheet-foot b{color:#6d7178;font-weight:500}
+
+/* analisi export */
+.taxtable{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:2px}
+.taxtable th{
+  text-align:left;font-weight:500;font-size:9px;letter-spacing:.18em;text-transform:uppercase;
+  color:#9a9ea5;padding:5px 6px 5px 0;border-bottom:1px solid #e3ded4;
+}
+.taxtable th:nth-child(n+2), .taxtable td:nth-child(n+2){text-align:right;padding-right:0;padding-left:8px}
+.taxtable td{padding:6px 6px 6px 0;border-bottom:1px solid #f1ede6;color:#14161a;font-variant-numeric:tabular-nums;white-space:nowrap}
+.taxtable td.gold{color:#8a6d3b;font-weight:600}
+.taxtable tr.isbest td{background:#faf6ec}
+.taxtable .dlt{color:#6d7178;font-size:10.5px}
+.taxtable .pct{color:#9a9ea5}
+.bestTag{
+  display:inline-block;background:#8a6d3b;color:#fff;font-size:8.5px;letter-spacing:.16em;
+  text-transform:uppercase;padding:2px 8px;border-radius:2px;
+}
+.bestbox{
+  margin-top:12px;padding:10px 14px;background:#faf6ec;border-left:3px solid #8a6d3b;
+  display:flex;flex-direction:column;gap:2px;
+}
+.bestbox .bb-k{font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:#9a7b3f}
+.bestbox .bb-v{font-family:'Archivo';font-weight:700;font-size:14px;letter-spacing:.04em;color:#14161a}
+.bestbox .bb-d{font-size:10.5px;color:#6d7178}
+.bestbox .bb-eq{font-family:'Inter',sans-serif;font-weight:400!important;font-size:10.5px;letter-spacing:0;color:#8b8f96;white-space:nowrap}
+.taxnote{margin-top:9px;font-size:9px;line-height:1.6;color:#8b8f96;letter-spacing:.03em}
+
+@media print{
+  @page{margin:14mm}
+  body{background:#fff!important}
+  body > *{display:none!important}
+  #sheetOverlay{display:block!important;position:static;padding:0;background:none;overflow:visible;backdrop-filter:none}
+  .sheet-actions{display:none!important}
+  .sheet{box-shadow:none;max-width:none;margin:0;padding:0;min-height:240mm}
+  .sheet-photo{height:200px}
+}
+
+/* =========================================================
+   iPHONE / MOBILE
+   ========================================================= */
+.taxwrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#sheetOverlay{-webkit-overflow-scrolling:touch}
+
+@media (max-width:700px){
+  header{
+    padding:12px 14px 0;
+    padding-left:calc(14px + env(safe-area-inset-left));
+    padding-right:calc(14px + env(safe-area-inset-right));
+    padding-top:max(12px, env(safe-area-inset-top));
+  }
+  .brandrow{gap:10px}
+  .hdr-actions{width:100%;margin-left:0;order:3}
+  /* 16px evita lo zoom automatico di Safari al focus */
+  #search{font-size:16px;width:100%;padding:9px 12px;letter-spacing:.02em}
+  #gearBtn{flex:none;font-size:15px;padding:8px 12px}
+
+  #statusBar{padding:9px 14px;gap:10px;font-size:10.5px}
+  #tsLabel{margin-left:0}
+
+  main{padding:14px 12px 30px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+  .card{padding:11px 9px 10px;gap:6px}
+  .octa-frame{max-width:none}
+  .ptitle{font-size:10.5px;height:3.6em;letter-spacing:.05em}
+  .ref{font-size:9.5px;letter-spacing:.02em}
+  .meta{font-size:8.5px;letter-spacing:.06em;gap:5px}
+  .prezzo{font-size:9.5px;letter-spacing:.04em;min-height:56px;padding-top:7px}
+  .prezzo .prow{gap:5px}
+  .famTitle{margin:24px 0 6px;letter-spacing:.12em}
+  .tab{padding:9px 10px;font-size:10.5px;letter-spacing:.1em}
+  .chip{font-size:9.5px;padding:5px 10px;letter-spacing:.08em}
+  .views{padding:7px 0}
+  .views:before{font-size:8.5px;letter-spacing:.16em}
+
+  /* scheda stampabile */
+  #sheetOverlay{padding:0 10px 40px}
+  .sheet{padding:20px 18px 18px;min-height:0}
+  .sheet-actions{
+    position:sticky;top:0;z-index:5;margin:0 -10px 10px;max-width:none;
+    padding:calc(10px + env(safe-area-inset-top)) 10px 10px;
+    background:rgba(10,10,11,.97);border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .sheet-actions button{padding:11px 14px;font-size:11px;flex:1}
+  .sheet-head img{height:22px}
+  .sheet-photo{height:170px;margin:12px auto 2px}
+  .sheet-photo img{max-height:170px;max-width:74%}
+  .sheet-title{font-size:17px}
+  .sheet-ref{font-size:10.5px}
+  .sheet-cols{gap:16px;margin-top:14px}
+  .sheet-col{min-width:0}
+  .srow{font-size:11px;padding:5px 0}
+  .taxtable{font-size:10px;min-width:520px}
+  .taxnote,.sheet-foot{font-size:8.5px}
+  footer{padding:28px 14px 24px;font-size:9px;letter-spacing:.1em}
+}
+
+@media (max-width:380px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .ptitle{font-size:10px}
+  .prezzo{font-size:9px}
+}
+
+/* ---------- wishlist ---------- */
+.wishbtn{
+  position:absolute;top:8px;left:8px;z-index:2;
+  width:26px;height:26px;line-height:1;
+  background:rgba(19,20,23,.85);border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio-soft);font-size:14px;display:grid;place-items:center;padding:0;
+  transition:all .15s;
+}
+.wishbtn:hover{border-color:var(--oro);color:var(--oro)}
+.wishbtn.on{color:#e0577a;border-color:#e0577a;background:rgba(224,87,122,.12)}
+
+.hdr-actions #wishToggle{
+  position:relative;background:none;border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio-soft);padding:8px 12px;font-size:12px;letter-spacing:.06em;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.hdr-actions #wishToggle:hover,.hdr-actions #wishToggle.on{color:var(--oro);border-color:var(--oro)}
+#wishToggle .wc{
+  background:var(--oro);color:#14161a;border-radius:10px;min-width:16px;height:16px;
+  font-size:9.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;
+}
+#wishToggle .wc:empty{display:none}
+
+#wishBar{
+  display:none;flex-wrap:wrap;align-items:center;gap:10px;
+  padding:12px 20px;border-bottom:1px solid var(--linea);background:rgba(19,20,23,.5);
+}
+#wishBar.on{display:flex}
+#wishBar .wb-lbl{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--acciaio-soft)}
+.loc-pick{display:flex;gap:6px}
+.loc-pick button{
+  background:var(--carbone);border:1px solid var(--linea);border-radius:20px;color:var(--acciaio-soft);
+  padding:6px 13px;font-size:11px;letter-spacing:.06em;display:flex;align-items:center;gap:6px;
+}
+.loc-pick button.on{border-color:var(--oro);color:var(--oro)}
+#wishBar .wb-tax{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--acciaio-soft)}
+#wishBar select, #wishBar input[type=number]{
+  background:var(--carbone);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);
+  padding:6px 8px;font-size:11.5px;outline:none;
+}
+#wishBar input[type=number]{width:58px;text-align:right}
+#wishBar .wb-actions{margin-left:auto;display:flex;gap:8px}
+#wishBar .wb-actions button{
+  background:var(--oro);border:1px solid var(--oro);border-radius:2px;color:#14161a;font-weight:600;
+  padding:8px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+}
+#wishBar .wb-actions button.ghost{background:none;color:var(--acciaio-soft);border-color:var(--linea);font-weight:400}
+#wishBar .wb-actions button.ghost:hover{color:var(--err);border-color:var(--err)}
+@media (max-width:700px){
+  #wishBar{padding:10px 12px;gap:8px}
+  #wishBar .wb-actions{width:100%;margin-left:0}
+  #wishBar .wb-actions button{flex:1}
+}
+
+/* ---------- tabella ordine (dentro il foglio stampabile) ---------- */
+.ordtable{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.ordtable th{
+  text-align:left;font-weight:500;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#9a9ea5;padding:6px 6px 6px 0;border-bottom:1px solid #e3ded4;
+}
+.ordtable th.r,.ordtable td.r{text-align:right;padding-left:8px}
+.ordtable td{padding:9px 6px 9px 0;border-bottom:1px solid #f1ede6;color:#14161a;vertical-align:top}
+.ordtable td.ph{width:52px}
+.ordtable td.ph .box{width:44px;height:44px;background:#f7f5f0;border:1px solid #e3ded4;display:grid;place-items:center;overflow:hidden}
+.ordtable td.ph img{max-width:100%;max-height:100%;object-fit:contain}
+.ordtable .d1{font-family:'Archivo';font-weight:600;font-size:11.5px}
+.ordtable .d2{font-size:9.5px;color:#6d7178;margin-top:2px}
+.ordtotals{margin-top:16px;margin-left:auto;width:280px}
+.ordtotals .orow{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f1ede6}
+.ordtotals .orow.big{border-bottom:none;border-top:2px solid #14161a;margin-top:4px;padding-top:10px;font-size:14px;font-weight:700}
+.ordtotals .orow .v.gold{color:#8a6d3b}
+
+/* ---------- parti ordine: due riquadri (fornitore / acquirente) ---------- */
+.wb-boxes{
+  width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  padding-top:12px;margin-top:10px;border-top:1px solid var(--linea);
+}
+.wb-box{
+  background:var(--carbone);border:1px solid var(--linea);border-radius:6px;
+  padding:12px 14px;display:flex;flex-direction:column;gap:8px;
+}
+.wb-box-h{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--acciaio-soft)}
+.wb-box select, .wb-box input, .wb-box textarea{
+  background:var(--nero);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);
+  padding:8px 9px;font-size:12px;font-family:inherit;outline:none;width:100%;
+}
+.wb-box select:focus, .wb-box input:focus, .wb-box textarea:focus{border-color:var(--blu-vivo)}
+.wb-box textarea{resize:vertical;min-height:44px}
+#suppLookupMsg{font-size:10px;color:var(--acciaio-soft)}
+#suppLookupMsg.ok{color:var(--ok)}
+#suppLookupMsg.warn{color:var(--warn)}
+
+.wb-buyer-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wb-buyer-tabs button{
+  background:var(--nero);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio-soft);
+  padding:9px 8px;font-size:11.5px;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.wb-buyer-tabs button.on{border:2px solid var(--oro);color:var(--oro);padding:8px 7px}
+#buyerPreview{font-size:11px;color:var(--acciaio-soft);white-space:pre-line;line-height:1.5}
+.wb-manual{border-top:1px solid var(--linea);padding-top:8px;margin-top:2px;display:flex;flex-direction:column;gap:6px}
+.wb-manual-h{font-size:9.5px;letter-spacing:.06em;color:var(--acciaio-soft)}
+
+@media (max-width:700px){
+  .wb-boxes{grid-template-columns:1fr}
+}
+
+/* ---------- blocco parti nel foglio stampato ---------- */
+.partyname{font-family:'Archivo';font-weight:600;font-size:12.5px;color:var(--inchiostro,#14161a)}
+.partyaddr{font-size:11px;color:#6d7178;white-space:pre-line;margin-top:3px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brandrow">
+    <a class="ap-brand" href="https://www.audemarspiguet.com" target="_blank" rel="noopener">
+      <img class="ap-logo"
+           src="https://www.audemarspiguet.com/etc.clientlibs/ap-com/ui/clientlibs/publish/resources/static/audemars-piguet-logo-white.svg"
+           alt="Audemars Piguet"
+           onerror="this.style.display='none';document.getElementById('brandFallback').style.display='block';">
+      <span id="brandFallback" style="display:none">
+        <span class="fb-title">AUDEMARS&nbsp;PIGUET</span>
+        <span class="fb-sub">Le Brassus</span>
+      </span>
+    </a>
+    <div class="hdr-actions">
+      <input id="search" type="search" placeholder="Search ref, model, material…" aria-label="Search">
+      <button id="wishToggle" aria-label="Wishlist">♥ Wishlist <span class="wc" id="wishCount"></span></button>
+      <button id="gearBtn" aria-label="Settings">⚙</button>
+    </div>
+  </div>
+  <div id="wishBar">
+    <span class="wb-lbl">Buying from</span>
+    <div class="loc-pick" id="locPick"></div>
+    <div class="wb-tax">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="wbDetax" style="width:auto">
+        <span>Show detax (net of VAT)</span>
+      </label>
+      <input id="wbTaxRate" type="number" step="0.1" min="0" value="8.1" style="display:none">%
+    </div>
+    <div class="wb-actions">
+      <button class="ghost" id="wbClear">Clear wishlist</button>
+      <button id="wbPrint">Print order</button>
+    </div>
+
+    <div class="wb-boxes">
+      <div class="wb-box">
+        <div class="wb-box-h">Sold by</div>
+        <select id="suppPick"></select>
+        <input id="suppName" placeholder="Name (if manual)" autocomplete="off">
+        <span id="suppLookupMsg"></span>
+        <textarea id="suppAddr" placeholder="Street, postcode, city, country · phone"></textarea>
+      </div>
+
+      <div class="wb-box">
+        <div class="wb-box-h">Buyer</div>
+        <div class="wb-buyer-tabs" id="buyerTabs">
+          <button data-loc="miami">🇺🇸 <span id="buyerNameUS"></span></button>
+          <button data-loc="paradiso">🇨🇭 <span id="buyerNameCH"></span></button>
+        </div>
+        <div class="partyaddr" id="buyerPreview" style="margin:8px 0 0"></div>
+        <div class="wb-manual">
+          <div class="wb-manual-h">Or enter a different buyer manually</div>
+          <input id="custNameManual" placeholder="Buyer name" autocomplete="off">
+          <textarea id="custAddrManual" placeholder="Address"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="navrow">
+    <nav class="tabs" id="tabs" aria-label="Collections"></nav>
+    <div class="views" id="views" aria-label="Catalogue views"></div>
+  </div>
+</header>
+
+<div id="statusBar"></div>
+
+<div id="loader">
+  <div class="octa-spin" aria-hidden="true"></div>
+  <div id="loadMsg">Contacting AP feeds…</div>
+</div>
+
+<main id="main" hidden>
+  <div id="content"></div>
+  <div id="emptyMsg">No references match your filters.</div>
+</main>
+
+<aside id="panel" aria-label="Settings">
+  <button id="closePanel" aria-label="Close">✕</button>
+  <h2>Settings</h2>
+  <label for="proxyInput">Proxy (Cloudflare Worker)</label>
+  <input id="proxyInput" type="url" placeholder="https://watch-proxy.owscan.workers.dev">
+  <div class="row">
+    <button id="saveProxy">Save &amp; reload</button>
+    <button class="ghost" id="testProxy">Test proxy</button>
+    <button class="ghost" id="clearCache">Clear catalogue cache</button>
+  </div>
+  <div id="testOut"></div>
+
+  <label for="paMiami" style="margin-top:26px">Your address — Miami</label>
+  <textarea id="paMiami" rows="3" placeholder="Street, postcode, Miami, FL, USA" style="width:100%;background:var(--nero);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);padding:9px 11px;font-size:12.5px;font-family:inherit;outline:none;resize:vertical"></textarea>
+
+  <label for="paParadiso">Your address — Paradiso</label>
+  <textarea id="paParadiso" rows="3" placeholder="Via, CAP, Paradiso, Lugano, Switzerland" style="width:100%;background:var(--nero);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);padding:9px 11px;font-size:12.5px;font-family:inherit;outline:none;resize:vertical"></textarea>
+  <div class="row">
+    <button id="saveProfile">Save addresses</button>
+  </div>
+
+  <label style="margin-top:26px">Boutique directory (live from AP)</label>
+  <div id="storesStatusPanel" style="font-size:11.5px;color:var(--acciaio-soft);margin-bottom:8px"></div>
+  <div class="row">
+    <button class="ghost" id="refreshStores">Reload directory (~1 min)</button>
+  </div>
+</aside>
+
+<div id="sheetOverlay" role="dialog" aria-modal="true" aria-label="Product sheet">
+  <div class="sheet-actions">
+    <button id="sheetPrint">Print / Save PDF</button>
+    <button class="ghost" id="sheetClose">Close</button>
+  </div>
+  <div class="sheet" id="sheetBody"></div>
+</div>
+
+<footer>Unofficial catalogue · official data, imagery and prices from <b>audemarspiguet.com</b> · Audemars Piguet® is a trademark of Audemars Piguet Holding SA</footer>
+
+<script>
+/* =========================================================
+   AP VETRINA v4 — feed ufficiali AEM:
+   /us/en/collections/{slug}.products.{vista}.json
+   viste: core-collection (attuale) · legacy · special
+   ========================================================= */
+var DEFAULT_PROXY = 'https://watch-proxy.owscan.workers.dev';
+var CACHE_KEY = 'apvet_catalogo_v4';
+var CACHE_TTL = 1000*60*60*24; // 24h
+
+var proxyBase = (function(){
+  try{ return localStorage.getItem('apvet_proxy') || DEFAULT_PROXY; }catch(e){ return DEFAULT_PROXY; }
+})();
+function prox(url){
+  return proxyBase.replace(/\/+$/,'') + '/?u=' + encodeURIComponent(url);
+}
+
+var COLLECTIONS = [
+  {slug:'royal-oak-collection',          name:'Royal Oak'},
+  {slug:'royal-oak-offshore-collection', name:'Royal Oak Offshore'},
+  {slug:'royal-oak-concept-collection',  name:'Royal Oak Concept'},
+  {slug:'code-11-59-collection',         name:'Code 11.59'},
+  {slug:'neo-frame-collection',          name:'Neo Frame'},
+  {slug:'les-etablisseurs',              name:'Établisseurs'}
+];
+var VIEWS = [
+  {key:'core-collection', label:'Current'},
+  {key:'special',         label:'Special'},
+  {key:'legacy',          label:'Legacy'}
+];
+
+/* ---------- stato ---------- */
+var items = [];               // {ref, coll, collName, title, img, url, size, materials, views:{core,special,legacy}}
+var activeColl = 'ALL';
+var activeViews = {'core-collection':true, 'special':false, 'legacy':false};
+var query = '';
+
+/* ---------- rete ---------- */
+function timeoutFetch(url, ms){
+  return new Promise(function(resolve, reject){
+    var t = setTimeout(function(){ reject(new Error('timeout')); }, ms || 25000);
+    fetch(url).then(function(r){ clearTimeout(t); resolve(r); }, function(e){ clearTimeout(t); reject(e); });
+  });
+}
+
+/* ---------- caricamento feed ---------- */
+function normalizeImg(u){
+  if(!u) return '';
+  return u.replace(/\?.*$/,'') + '?size=560,0&fmt=avif-alpha&dpr=off';
+}
+
+function ingest(results, coll, viewKey, bag){
+  if(!Array.isArray(results)) return;
+  for(var i=0;i<results.length;i++){
+    var p = results[i] || {};
+    var ref = p.reference;
+    if(!ref) continue;
+    var it = bag[ref];
+    if(!it){
+      it = bag[ref] = {
+        ref: ref,
+        coll: coll.slug,
+        collName: (p.collectionTitle || coll.name),
+        title: p.productTitle || '',
+        img: normalizeImg(p.mainImage && (p.mainImage.link || p.mainImage.tabletLink)),
+        url: (p.link && p.link.href) || '',
+        size: p.size ? (p.size + ' ' + (p.sizeUnit||'mm')) : '',
+        materials: p.materials || p.enMaterials || '',
+        views: {}
+      };
+    }
+    it.views[viewKey] = true;
+    if(!it.img) it.img = normalizeImg(p.mainImage && (p.mainImage.link || p.mainImage.tabletLink));
+    if(!it.title) it.title = p.productTitle || '';
+  }
+}
+
+async function loadCollection(coll, bag, progress){
+  // 1) model.json → endpoint dichiarati (con fallback sul pattern noto)
+  var endpoints = null;
+  try{
+    var r = await timeoutFetch(prox('https://www.audemarspiguet.com/us/en/collections/'+coll.slug+'.model.json'), 15000);
+    if(r.ok){
+      var obj = JSON.parse(await r.text());
+      var ep = obj.endpoints;
+      if(typeof ep === 'string') ep = JSON.parse(ep);
+      if(Array.isArray(ep) && ep.length) endpoints = ep;
+    }
+  }catch(e){}
+  if(!endpoints){
+    endpoints = VIEWS.map(function(v){
+      return {name:v.key, url:'https://www.audemarspiguet.com/us/en/collections/'+coll.slug+'.products.'+v.key+'.json'};
+    });
+  }
+  // 2) feed in parallelo
+  await Promise.all(endpoints.map(async function(ep){
+    var viewKey = ep.name || 'core-collection';
+    try{
+      var r2 = await timeoutFetch(prox(ep.url), 25000);
+      if(!r2.ok) return;
+      var data = JSON.parse(await r2.text());
+      ingest(data.results || data.items || [], coll, viewKey, bag);
+      progress();
+    }catch(e){}
+  }));
+}
+
+async function discover(){
+  var bag = {};
+  var doneFeeds = 0, totalFeeds = COLLECTIONS.length * VIEWS.length;
+  function progress(){
+    doneFeeds++;
+    var n = Object.keys(bag).length;
+    document.getElementById('loadMsg').textContent = 'Feed '+doneFeeds+'/'+totalFeeds+' · '+n+' references';
+  }
+  await Promise.all(COLLECTIONS.map(function(c){ return loadCollection(c, bag, progress); }));
+  var list = Object.keys(bag).map(function(k){ return bag[k]; });
+  return list.length ? list : null;
+}
+
+/* ---------- cache ---------- */
+function readCache(){
+  try{
+    var raw = localStorage.getItem(CACHE_KEY);
+    if(!raw) return null;
+    var obj = JSON.parse(raw);
+    if(Date.now() - obj.ts > CACHE_TTL) return null;
+    return obj;
+  }catch(e){ return null; }
+}
+function writeCache(list){
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(), list:list})); }catch(e){}
+}
+
+/* =========================================================
+   MOTORE PREZZI UFFICIALI
+   endpoint: /{site}/home.price.{REF}.{country}.json
+   → {price:{amount,currency}}  (scoperto da ProductInfo chunk)
+   ========================================================= */
+var PRICE_LOCALES = [
+  {label:'CHF', flag:'🇨🇭', site:'ch/en', cc:'ch', fmt:'de-CH'},
+  {label:'EUR', flag:'🇪🇺', site:'it/it', cc:'it', fmt:'de-DE'},
+  {label:'USD', flag:'🇺🇸', site:'us/en', cc:'us', fmt:'en-US'}
+];
+var PRICE_LOCALE_US = PRICE_LOCALES[2];
+var PRICE_KEY = 'apvet_prices_v1';
+var PRICE_TTL = 1000*60*60*24*7; // 7 giorni
+var priceCache = (function(){
+  try{
+    var o = JSON.parse(localStorage.getItem(PRICE_KEY) || '{}');
+    return (o && typeof o === 'object') ? o : {};
+  }catch(e){ return {}; }
+})();
+var priceCacheDirty = false;
+function savePriceCache(){
+  if(!priceCacheDirty) return;
+  priceCacheDirty = false;
+  try{ localStorage.setItem(PRICE_KEY, JSON.stringify(priceCache)); }catch(e){}
+}
+setInterval(savePriceCache, 4000);
+
+var priceShape = null;        // {content:bool, upper:bool} quando rilevato
+var priceEngineOn = null;     // null = in rilevamento, true/false = esito
+var priceProbeLog = [];
+var priceReadyResolve;
+var priceReady = new Promise(function(res){ priceReadyResolve = res; });
+
+function priceUrl(ref, loc, shape){
+  var s = shape || priceShape || {content:false, upper:false};
+  var cc = s.upper ? loc.cc.toUpperCase() : loc.cc;
+  var base = s.content
+    ? 'https://www.audemarspiguet.com/content/ap/com2/'+loc.site+'/home'
+    : 'https://www.audemarspiguet.com/'+loc.site+'/home';
+  return base + '.price.'+ref+'.'+cc+'.json';
+}
+
+async function fetchPriceRaw(ref, loc, shape){
+  var url = priceUrl(ref, loc, shape);
+  try{
+    var r = await timeoutFetch(prox(url), 15000);
+    var t = await r.text();
+    var isJson = /^[\[{]/.test(t.trim());
+    var j = null;
+    if(isJson){ try{ j = JSON.parse(t); }catch(e){ j = null; } }
+    return {url:url, status:r.status, json:j};
+  }catch(e){
+    return {url:url, status:0, json:null, err:e.message};
+  }
+}
+
+async function fetchOnePrice(ref, loc){
+  var res = await fetchPriceRaw(ref, loc, null);
+  if(res.json && res.json.price && res.json.price.amount){
+    return {amount:Number(res.json.price.amount), currency:res.json.price.currency || loc.label};
+  }
+  return null;
+}
+
+async function detectPriceEngine(sampleRefs){
+  var shapes = [
+    {content:false, upper:false},
+    {content:false, upper:true},
+    {content:true,  upper:false},
+    {content:true,  upper:true}
+  ];
+  for(var s=0; s<shapes.length; s++){
+    for(var i=0; i<sampleRefs.length; i++){
+      var res = await fetchPriceRaw(sampleRefs[i], PRICE_LOCALE_US, shapes[s]);
+      priceProbeLog.push('HTTP '+res.status+(res.json?' JSON':'')+(res.err?' '+res.err:'')+' ← '+res.url);
+      if(res.status === 200 && res.json !== null){
+        priceShape = shapes[s];
+        priceEngineOn = true;
+        priceReadyResolve();
+        return;
+      }
+    }
+  }
+  priceEngineOn = false;
+  priceReadyResolve();
+}
+
+function fmtPrice(p, loc){
+  try{
+    return new Intl.NumberFormat(loc.fmt, {maximumFractionDigits:0}).format(p.amount);
+  }catch(e){
+    return String(Math.round(p.amount));
+  }
+}
+
+async function getPrices(ref){
+  var c = priceCache[ref];
+  if(c && (Date.now() - c.ts < PRICE_TTL)) return c;
+  var results = await Promise.all(PRICE_LOCALES.map(function(loc){ return fetchOnePrice(ref, loc); }));
+  var entry = {ts: Date.now()};
+  PRICE_LOCALES.forEach(function(loc, i){
+    entry[loc.label] = results[i] ? {amount:results[i].amount, currency:results[i].currency} : null;
+  });
+  priceCache[ref] = entry;
+  priceCacheDirty = true;
+  return entry;
+}
+
+function priceSkeleton(){
+  var html = '<div class="plist">';
+  PRICE_LOCALES.forEach(function(loc){
+    html += '<div class="prow"><span class="cur">'+loc.flag+' '+loc.label+'</span><span class="val muted">—</span></div>';
+  });
+  return html + '</div>';
+}
+
+function renderPricesInto(el, entry){
+  var any = PRICE_LOCALES.some(function(loc){ return entry && entry[loc.label]; });
+  if(!any){
+    el.innerHTML = '<span class="onreq">Price on request</span>';
+    return;
+  }
+  var html = '<div class="plist">';
+  PRICE_LOCALES.forEach(function(loc){
+    var p = entry[loc.label];
+    html += '<div class="prow"><span class="cur">'+loc.flag+' '+loc.label+'</span><span class="val'+(p?'':' muted')+'">'+(p ? fmtPrice(p, loc) : '—')+'</span></div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+/* coda: max 4 referenze in parallelo (12 richieste HTTP) */
+var priceQueue = [], priceActive = 0, PRICE_MAX = 4;
+function pumpPrices(){
+  while(priceActive < PRICE_MAX && priceQueue.length){
+    var job = priceQueue.shift();
+    if(!job.el.isConnected) continue; // card rimossa da un re-render
+    priceActive++;
+    (function(job){
+      getPrices(job.ref).then(function(entry){
+        priceActive--;
+        if(job.el.isConnected) renderPricesInto(job.el, entry);
+        pumpPrices();
+      }, function(){
+        priceActive--;
+        if(job.el.isConnected) job.el.innerHTML = '<span class="onreq">Price on request</span>';
+        pumpPrices();
+      });
+    })(job);
+  }
+}
+
+var priceObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if(!en.isIntersecting) return;
+    priceObserver.unobserve(en.target);
+    var el = en.target, ref = el.getAttribute('data-ref');
+    priceReady.then(function(){
+      if(!priceEngineOn){
+        el.innerHTML = '<span class="onreq">Price on request</span>';
+        return;
+      }
+      var c = priceCache[ref];
+      if(c && (Date.now() - c.ts < PRICE_TTL)){ renderPricesInto(el, c); return; }
+      priceQueue.push({ref:ref, el:el});
+      pumpPrices();
+    });
+  });
+}, {rootMargin:'200px'}) : null;
+
+/* =========================================================
+   FALLBACK IMMAGINI: foto dalla pagina prodotto via proxy
+   (il feed a volte contiene un watch-placeholder)
+   ========================================================= */
+var IMG_KEY = 'apvet_img_v6';
+var imgMap = (function(){
+  try{
+    var o = JSON.parse(localStorage.getItem(IMG_KEY) || '{}');
+    return (o && typeof o === 'object') ? o : {};
+  }catch(e){ return {}; }
+})();
+function saveImgMap(){
+  try{ localStorage.setItem(IMG_KEY, JSON.stringify(imgMap)); }catch(e){}
+}
+/* variante "-AB" / "-XX" → referenza base */
+function baseRef(ref){
+  return String(ref||'').replace(/-[A-Za-z0-9]{1,4}$/, '');
+}
+/* indice foto per referenza base, costruito dal feed */
+var imgByBase = {};
+function buildImgIndex(){
+  imgByBase = {};
+  items.forEach(function(it){
+    if(!it.img || it.img.indexOf('watch-placeholder') !== -1) return;
+    var b = baseRef(it.ref);
+    if(!imgByBase[b]) imgByBase[b] = it.img;
+  });
+}
+
+var pageImgQueue = [], pageImgActive = 0, PAGE_IMG_MAX = 3;
+var MAX_ASPECT = 1.5; // oltre questo rapporto è un banner, non una foto prodotto
+
+function pumpPageImg(){
+  while(pageImgActive < PAGE_IMG_MAX && pageImgQueue.length){
+    var job = pageImgQueue.shift();
+    pageImgActive++;
+    (function(job){
+      fetchPageImage(job.item).then(function(list){
+        pageImgActive--;
+        if(!list || !list.length){ job.fail(); pumpPageImg(); return; }
+        tryCandidates(job, list);
+        pumpPageImg();
+      }, function(){
+        pageImgActive--;
+        job.fail();
+        pumpPageImg();
+      });
+    })(job);
+  }
+}
+
+/* prova i candidati in ordine, scartando quelli troppo panoramici */
+function tryCandidates(job, list){
+  var i = 0, img = job.img, ref = job.item.ref;
+  function next(){
+    if(i >= list.length){
+      imgMap[ref] = ''; saveImgMap();
+      job.fail();
+      return;
+    }
+    var u = list[i++];
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if(w && h && (w/h) > MAX_ASPECT){ next(); return; } // banner: scarta
+      imgMap[ref] = u; saveImgMap();
+      img.onload = null;
+      img.style.display = '';
+    };
+    img.onerror = next;
+    img.src = u;
+  }
+  next();
+}
+async function fetchPageImage(item){
+  if(imgMap[item.ref] !== undefined){
+    return imgMap[item.ref] ? [imgMap[item.ref]] : [];
+  }
+  var urls = [];
+  var primary = item.url || ('https://www.audemarspiguet.com/us/en/watch-collection/'+item.coll.replace(/-collection$/,'')+'/'+item.ref);
+  urls.push(primary);
+  // variante con suffisso: prova anche la pagina della referenza base
+  var b = baseRef(item.ref);
+  if(b !== item.ref){
+    urls.push(primary.replace(item.ref, b));
+  }
+
+  for(var u=0; u<urls.length; u++){
+    var list = await scanPageForImages(urls[u], item);
+    if(list && list.length) return list;
+  }
+  imgMap[item.ref] = ''; saveImgMap();
+  return [];
+}
+
+async function scanPageForImages(pageUrl, item){
+  try{
+    var r = await timeoutFetch(prox(pageUrl), 20000);
+    if(!r.ok) return [];
+    var html = await r.text();
+
+    var BAD = /logo|icon|150_YEARS|takeover|flag|placeholder|essential|chronicles|musee|fondation|banner|lifestyle|shoot|hero|header|cover|campaign|ambiance|mood|editorial|_ls_|-ls-|\d{3,4}x\d{3,4}/i;
+    var re = /https:\/\/dynamicmedia\.audemarspiguet\.com\/is\/image\/audemarspiguet\/[A-Za-z0-9_\-%.]+/g;
+
+    // tutte le occorrenze con la loro posizione nel documento
+    var found = [], m;
+    while((m = re.exec(html)) !== null){
+      if(!BAD.test(m[0])) found.push({url:m[0], idx:m.index});
+    }
+    if(!found.length) return [];
+
+    // ancora della scheda prodotto
+    var anchor = -1;
+    ['Standup image', 'ap-productinfo', 'productInfoRef', 'ap-product-info'].forEach(function(a){
+      if(anchor === -1){ var i = html.indexOf(a); if(i > -1) anchor = i; }
+    });
+    if(anchor === -1) anchor = html.indexOf('maincontent');
+    if(anchor === -1) anchor = 0;
+
+    var refStem = item.ref.split('.')[0];
+    found.forEach(function(f){
+      var d = Math.abs(f.idx - anchor);
+      // bonus agli asset prodotto classici e a quelli che citano la referenza
+      if(/\/(watch|standup)-\d+/i.test(f.url)) d -= 20000;
+      if(f.url.indexOf(refStem) !== -1) d -= 40000;
+      f.score = d;
+    });
+    found.sort(function(a,b){ return a.score - b.score; });
+
+    var seen = {}, list = [];
+    for(var i=0; i<found.length && list.length < 5; i++){
+      var clean = found[i].url.replace(/\?.*$/,'');
+      if(seen[clean]) continue;
+      seen[clean] = 1;
+      list.push(clean + '?size=560,0&fmt=avif-alpha&dpr=off');
+    }
+    return list;
+  }catch(e){
+    return [];
+  }
+}
+
+/* ---------- render ---------- */
+/* =========================================================
+   DIRECTORY BOUTIQUE AP — dati live dal sito ufficiale
+   Ogni pagina /stores/{slug} espone l'indirizzo in un
+   attributo Vue :store="{...}" (schema Yext). Si legge il
+   sitemap per gli slug e si estrae nome+indirizzo da ognuno.
+   ========================================================= */
+var STORES_KEY = 'apwish_stores_v2';
+var STORES_TTL = 1000*60*60*24*14; // 14 giorni
+
+var COUNTRY_NAMES = {
+  CH:'Switzerland', US:'United States', IT:'Italy', FR:'France', GB:'United Kingdom',
+  MC:'Monaco', DE:'Germany', ES:'Spain', PT:'Portugal', AT:'Austria', NL:'Netherlands',
+  CZ:'Czech Republic', GR:'Greece', TR:'Turkey', AE:'United Arab Emirates', QA:'Qatar',
+  KW:'Kuwait', SA:'Saudi Arabia', IL:'Israel', JO:'Jordan', HK:'Hong Kong SAR',
+  SG:'Singapore', JP:'Japan', CN:'China', KR:'South Korea', TW:'Taiwan', TH:'Thailand',
+  VN:'Vietnam', MY:'Malaysia', MO:'Macau SAR', AR:'Argentina', CL:'Chile', MX:'Mexico',
+  BR:'Brazil', BS:'Bahamas', BL:'Saint Barthélemy', GB1:'United Kingdom'
+};
+function countryName(code){ return COUNTRY_NAMES[code] || code || ''; }
+
+var liveStores = (function(){
+  try{
+    var raw = localStorage.getItem(STORES_KEY);
+    if(!raw) return [];
+    var o = JSON.parse(raw);
+    if(!o || !o.ts || (Date.now()-o.ts > STORES_TTL) || !Array.isArray(o.list)) return [];
+    return o.list;
+  }catch(e){ return []; }
+})();
+function saveStores(list){
+  try{ localStorage.setItem(STORES_KEY, JSON.stringify({ts:Date.now(), list:list})); }catch(e){}
+}
+
+var STORE_RE = /:store="\{&#34;name&#34;:&#34;(.*?)&#34;,&#34;address&#34;:\{&#34;city&#34;:&#34;(.*?)&#34;,&#34;countryCode&#34;:&#34;(.*?)&#34;,&#34;line1&#34;:&#34;(.*?)&#34;,&#34;extraDescription&#34;:(?:null|&#34;(.*?)&#34;),&#34;postalCode&#34;:&#34;(.*?)&#34;/;
+
+function decodeHtmlEntities(s){
+  return String(s||'')
+    .replace(/&#34;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&')
+    .replace(/&#(\d+);/g, function(_,d){ return String.fromCharCode(d); });
+}
+
+async function fetchStoreSlugs(){
+  var slugs = [];
+  try{
+    var r = await timeoutFetch(prox('https://www.audemarspiguet.com/us/en/sitemap.xml'), 25000);
+    if(!r.ok) return slugs;
+    var t = await r.text();
+    var locs = t.match(/<loc>[^<]+<\/loc>/g) || [];
+    locs.forEach(function(l){
+      var m = l.match(/\/stores\/([a-z0-9-]+)</i);
+      if(m && slugs.indexOf(m[1]) === -1) slugs.push(m[1]);
+    });
+  }catch(e){}
+  return slugs;
+}
+
+async function fetchStoreData(slug){
+  try{
+    var r = await timeoutFetch(prox('https://www.audemarspiguet.com/us/en/stores/'+slug), 20000);
+    if(!r.ok) return null;
+    var html = await r.text();
+    var m = html.match(STORE_RE);
+    if(!m) return null;
+    var name = decodeHtmlEntities(m[1]);
+    var city = decodeHtmlEntities(m[2]);
+    var cc = m[3];
+    var line1 = decodeHtmlEntities(m[4]);
+    var postal = decodeHtmlEntities(m[6]);
+    var country = countryName(cc);
+    var addr = line1 + (postal ? ', ' + postal : '') + ' ' + city + (country ? ', ' + country : '');
+    return {slug:slug, name:name, city:city, countryCode:cc, country:country, addr:addr.trim()};
+  }catch(e){ return null; }
+}
+
+async function loadStoresDirectory(statusEl){
+  var slugs = await fetchStoreSlugs();
+  if(!slugs.length){ if(statusEl) statusEl.textContent = 'Sitemap unreachable — check the proxy.'; return; }
+  var results = [];
+  var done = 0, active = 0, idx = 0, CONC = 5;
+  await new Promise(function(resolve){
+    function pump(){
+      if(idx >= slugs.length && active === 0){ resolve(); return; }
+      while(active < CONC && idx < slugs.length){
+        var slug = slugs[idx++]; active++;
+        fetchStoreData(slug).then(function(data){
+          active--; done++;
+          if(data) results.push(data);
+          if(statusEl) statusEl.textContent = 'Loading boutique '+done+'/'+slugs.length+'… ('+results.length+' found)';
+          pump();
+        });
+      }
+    }
+    pump();
+  });
+  results.sort(function(a,b){ return (a.country+a.name).localeCompare(b.country+b.name); });
+  saveStores(results);
+  liveStores = results;
+  if(statusEl) statusEl.textContent = 'Loaded '+results.length+' official boutiques.';
+  populateBoutiquePicker();
+}
+
+function populateBoutiquePicker(){
+  var sel = document.getElementById('suppPick');
+  sel.innerHTML = '';
+  var opt0 = document.createElement('option');
+  opt0.value = '__manual__';
+  opt0.textContent = '— Other retailer (enter manually) —';
+  sel.appendChild(opt0);
+
+  if(!liveStores.length) return;
+
+  var groups = {};
+  liveStores.forEach(function(b, i){
+    var g = b.country || 'Other';
+    (groups[g] = groups[g] || []).push({b:b, i:i});
+  });
+  Object.keys(groups).sort().forEach(function(g){
+    var og = document.createElement('optgroup');
+    og.label = g;
+    groups[g].forEach(function(x){
+      var o = document.createElement('option');
+      o.value = String(x.i);
+      o.textContent = x.b.name;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+/* =========================================================
+   WISHLIST
+   ========================================================= */
+var WISH_KEY = 'apwish_v1';
+var wishlist = (function(){
+  try{ var o = JSON.parse(localStorage.getItem(WISH_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; }
+  catch(e){ return {}; }
+})();
+var wishlistMode = false;
+var wishLoc = (function(){
+  try{ return localStorage.getItem('apwish_loc') || 'CHF'; }catch(e){ return 'CHF'; }
+})();
+
+function isWished(ref){ return !!wishlist[ref]; }
+function saveWish(){ try{ localStorage.setItem(WISH_KEY, JSON.stringify(wishlist)); }catch(e){} }
+function wishCount(){ return Object.keys(wishlist).length; }
+
+/* =========================================================
+   PROFILO CLIENTE (nome + due indirizzi spedizione)
+   ========================================================= */
+var PROFILE_KEY = 'apwish_profile_v1';
+var DEFAULT_PROFILE = {
+  name: 'Giovanni Fasciano',
+  paradiso: 'Via Zorzi 28\n6900 Paradiso\nSwitzerland',
+  miami: '1440 W 23rd St\n33140 Miami Beach, FL\nUnited States',
+  ship: 'paradiso',
+  manualBuyerName: '',
+  manualBuyerAddr: ''
+};
+var profile = (function(){
+  try{
+    var o = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+    if(!o) return Object.assign({}, DEFAULT_PROFILE);
+    var p = {
+      name: o.name || DEFAULT_PROFILE.name,
+      miami: o.miami || DEFAULT_PROFILE.miami,
+      paradiso: o.paradiso || DEFAULT_PROFILE.paradiso,
+      ship: o.ship || DEFAULT_PROFILE.ship,
+      manualBuyerName: o.manualBuyerName || '',
+      manualBuyerAddr: o.manualBuyerAddr || ''
+    };
+    // migrazione: rimuove il nome se resta duplicato in testa all'indirizzo
+    // (dati salvati prima della correzione, o incollati con il nome incluso)
+    ['miami','paradiso'].forEach(function(k){
+      var lines = p[k].split('\n');
+      if(lines.length && lines[0].trim() && lines[0].trim() === (p.name||'').trim()){
+        lines.shift();
+        p[k] = lines.join('\n');
+      }
+    });
+    return p;
+  }catch(e){ return Object.assign({}, DEFAULT_PROFILE); }
+})();
+saveProfile();
+function saveProfile(){
+  try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+}
+function shipAddress(){
+  return profile.ship === 'paradiso' ? profile.paradiso : profile.miami;
+}
+function getBuyer(){
+  var manualName = (document.getElementById('custNameManual').value || '').trim();
+  var manualAddr = (document.getElementById('custAddrManual').value || '').trim();
+  if(manualName) return {name:manualName, addr:manualAddr};
+  return {name:profile.name, addr:shipAddress()};
+}
+
+function toggleWish(ref, btn){
+  if(wishlist[ref]){ delete wishlist[ref]; if(btn){ btn.classList.remove('on'); } }
+  else{ wishlist[ref] = true; if(btn){ btn.classList.add('on'); } }
+  saveWish();
+  updateWishHeader();
+  if(wishlistMode) renderGrid();
+}
+
+function updateWishHeader(){
+  var n = wishCount();
+  var c = document.getElementById('wishCount');
+  if(c) c.textContent = n || '';
+  var t = document.getElementById('wishToggle');
+  if(t) t.classList.toggle('on', wishlistMode);
+}
+
+function renderLocPick(){
+  var box = document.getElementById('locPick');
+  if(!box) return;
+  box.innerHTML = '';
+  PRICE_LOCALES.forEach(function(loc){
+    var b = document.createElement('button');
+    b.className = (wishLoc === loc.label) ? 'on' : '';
+    b.innerHTML = loc.flag + ' ' + loc.label;
+    b.onclick = function(){
+      wishLoc = loc.label;
+      try{ localStorage.setItem('apwish_loc', wishLoc); }catch(e){}
+      var rateEl = document.getElementById('wbTaxRate');
+      if(rateEl && VAT[wishLoc] != null) rateEl.value = (VAT[wishLoc]*100).toFixed(1);
+      renderLocPick();
+    };
+    box.appendChild(b);
+  });
+}
+
+function setWishlistMode(on){
+  wishlistMode = on;
+  document.getElementById('wishBar').classList.toggle('on', on);
+  updateWishHeader();
+  renderLocPick();
+  renderTabs();
+  renderGrid();
+}
+
+function visibleItems(){
+  var q = query;
+  return items.filter(function(it){
+    if(wishlistMode){
+      if(!isWished(it.ref)) return false;
+    } else {
+      if(activeColl !== 'ALL' && it.coll !== activeColl) return false;
+      var vOk = false;
+      for(var v in it.views){ if(activeViews[v]){ vOk = true; break; } }
+      if(!vOk) return false;
+    }
+    if(q){
+      var hay = (it.ref + ' ' + it.title + ' ' + it.materials + ' ' + it.collName).toUpperCase();
+      if(hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+}
+
+function renderTabs(){
+  var tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  var counts = {};
+  items.forEach(function(it){
+    for(var v in it.views){ if(activeViews[v]){ counts[it.coll]=(counts[it.coll]||0)+1; return; } }
+  });
+  var total = 0; for(var k in counts) total += counts[k];
+  var all = document.createElement('button');
+  all.className = 'tab' + (activeColl==='ALL' ? ' active' : '');
+  all.innerHTML = 'All <span class="n">'+total+'</span>';
+  all.onclick = function(){ activeColl = 'ALL'; renderTabs(); renderGrid(); };
+  tabs.appendChild(all);
+  COLLECTIONS.forEach(function(c){
+    if(!counts[c.slug]) return;
+    var b = document.createElement('button');
+    b.className = 'tab' + (activeColl===c.slug ? ' active' : '');
+    b.innerHTML = c.name + ' <span class="n">'+counts[c.slug]+'</span>';
+    b.onclick = function(){ activeColl = c.slug; renderTabs(); renderGrid(); };
+    tabs.appendChild(b);
+  });
+}
+
+function renderViews(){
+  var box = document.getElementById('views');
+  box.innerHTML = '';
+  var allOn = VIEWS.every(function(v){ return activeViews[v.key]; });
+  var allBtn = document.createElement('button');
+  allBtn.className = 'chip' + (allOn ? ' on' : '');
+  allBtn.textContent = 'All';
+  allBtn.setAttribute('aria-pressed', allOn ? 'true' : 'false');
+  allBtn.onclick = function(){
+    VIEWS.forEach(function(v){ activeViews[v.key] = true; });
+    renderViews(); renderTabs(); renderGrid();
+  };
+  box.appendChild(allBtn);
+  VIEWS.forEach(function(v){
+    var b = document.createElement('button');
+    b.className = 'chip' + (activeViews[v.key] ? ' on' : '');
+    b.textContent = v.label;
+    b.setAttribute('aria-pressed', activeViews[v.key] ? 'true' : 'false');
+    b.onclick = function(){
+      activeViews[v.key] = !activeViews[v.key];
+      renderViews(); renderTabs(); renderGrid();
+    };
+    box.appendChild(b);
+  });
+}
+
+function badgeFor(it){
+  if(it.views['core-collection']) return null;
+  if(it.views['special']) return {cls:'special', label:'Special'};
+  if(it.views['legacy']) return {cls:'legacy', label:'Legacy'};
+  return null;
+}
+
+function cardFor(it){
+  var card = document.createElement('div');
+  card.className = 'card';
+
+  function openOfficial(){
+    var w = window.open(it.url || 'https://www.audemarspiguet.com/us/en/collections', '_blank');
+    if(w) w.opener = null;
+  }
+
+  var bd = badgeFor(it);
+  if(bd){
+    var badge = document.createElement('div');
+    badge.className = 'badge '+bd.cls;
+    badge.textContent = bd.label;
+    card.appendChild(badge);
+  }
+
+  var wishb = document.createElement('button');
+  wishb.className = 'wishbtn' + (isWished(it.ref) ? ' on' : '');
+  wishb.innerHTML = '\u2665';
+  wishb.title = isWished(it.ref) ? 'Remove from wishlist' : 'Add to wishlist';
+  wishb.onclick = function(e){ e.stopPropagation(); toggleWish(it.ref, wishb); };
+  card.appendChild(wishb);
+
+  var frame = document.createElement('div');
+  frame.className = 'octa-frame';
+  (function(){
+    var feedImg = (it.img && it.img.indexOf('watch-placeholder') === -1) ? it.img : '';
+    var baseImg = imgByBase[baseRef(it.ref)] || '';
+    if(baseImg === feedImg) baseImg = '';
+    var cachedImg = imgMap[it.ref] || '';
+    var first = cachedImg || feedImg || baseImg;
+    var img = document.createElement('img');
+    img.alt = it.collName + ' ' + it.ref;
+    img.loading = 'lazy';
+    function showNoImg(){
+      img.remove();
+      var d = document.createElement('div');
+      d.className = 'noimg';
+      d.textContent = 'Image on AP';
+      frame.appendChild(d);
+    }
+    function toPageFallback(){
+      if(imgMap[it.ref]){ delete imgMap[it.ref]; }   // la cache conteneva un asset non valido
+      else if(imgMap[it.ref] === ''){ showNoImg(); return; }
+      img.style.display = 'none';
+      pageImgQueue.push({item:it, img:img, fail:showNoImg});
+      pumpPageImg();
+    }
+    var tried = {};
+    function nextLocal(){
+      var chain = [cachedImg, feedImg, baseImg];
+      for(var i=0;i<chain.length;i++){
+        if(chain[i] && !tried[chain[i]]){
+          tried[chain[i]] = 1;
+          img.src = chain[i];
+          return true;
+        }
+      }
+      return false;
+    }
+    img.onerror = function(){ if(!nextLocal()) toPageFallback(); };
+    img.onload = function(){
+      var w = img.naturalWidth, h = img.naturalHeight;
+      if(w && h && (w/h) > 1.5){ if(!nextLocal()) { img.onload = null; toPageFallback(); } }
+    };
+    if(first){
+      tried[first] = 1;
+      img.src = first;
+      frame.appendChild(img);
+    } else {
+      frame.appendChild(img);
+      toPageFallback();
+    }
+  })();
+  card.appendChild(frame);
+  frame.setAttribute('role','button');
+  frame.tabIndex = 0;
+  frame.title = 'Open printable sheet';
+  frame.onclick = function(){ openSheet(it, frame.querySelector('img')); };
+  frame.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openSheet(it, frame.querySelector('img')); } };
+
+  var t = document.createElement('div');
+  t.className = 'ptitle';
+  t.textContent = it.title || it.collName;
+  card.appendChild(t);
+
+  var ref = document.createElement('div');
+  ref.className = 'ref';
+  ref.textContent = it.ref;
+  ref.setAttribute('role','link');
+  ref.tabIndex = 0;
+  ref.title = 'Open on audemarspiguet.com';
+  ref.onclick = openOfficial;
+  ref.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openOfficial(); } };
+  card.appendChild(ref);
+
+  var meta = document.createElement('div');
+  meta.className = 'meta';
+  var parts = [];
+  if(it.materials) parts.push('<span class="mat">'+it.materials+'</span>');
+  if(it.size) parts.push('<span>'+it.size+'</span>');
+  meta.innerHTML = parts.join('');
+  card.appendChild(meta);
+
+  var pr = document.createElement('div');
+  pr.className = 'prezzo';
+  pr.setAttribute('data-ref', it.ref);
+  pr.innerHTML = priceSkeleton();
+  pr.setAttribute('role','button');
+  pr.tabIndex = 0;
+  pr.title = 'Open export price analysis';
+  pr.onclick = function(){ openSheet(it, frame.querySelector('img'), true); };
+  pr.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openSheet(it, frame.querySelector('img'), true); } };
+  card.appendChild(pr);
+  if(priceObserver) priceObserver.observe(pr);
+  else pr.innerHTML = '<span class="onreq">Price on request</span>';
+
+  return card;
+}
+
+function renderGrid(){
+  var content = document.getElementById('content');
+  content.innerHTML = '';
+  var filtered = visibleItems();
+
+  document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
+  if(wishlistMode){
+    document.getElementById('emptyMsg').textContent = 'Your wishlist is empty — tap the ♥ on any watch to add it.';
+  } else {
+    document.getElementById('emptyMsg').textContent = 'No references match your filters.';
+  }
+
+  if(wishlistMode){
+    if(filtered.length){
+      var h0 = document.createElement('div');
+      h0.className = 'famTitle';
+      h0.innerHTML = 'Wishlist <small>'+filtered.length+' watch'+(filtered.length>1?'es':'')+'</small>';
+      content.appendChild(h0);
+      var rule0 = document.createElement('div');
+      rule0.className = 'famRule';
+      content.appendChild(rule0);
+      var grid0 = document.createElement('div');
+      grid0.className = 'grid';
+      filtered.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+      filtered.forEach(function(it){ grid0.appendChild(cardFor(it)); });
+      content.appendChild(grid0);
+    }
+    return;
+  }
+
+  var groups = {};
+  filtered.forEach(function(it){ (groups[it.coll] = groups[it.coll] || []).push(it); });
+
+  COLLECTIONS.forEach(function(c){
+    var list = groups[c.slug];
+    if(!list || !list.length) return;
+    list.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+
+    var h = document.createElement('div');
+    h.className = 'famTitle';
+    h.innerHTML = c.name + ' <small>'+list.length+' references</small>';
+    content.appendChild(h);
+    var rule = document.createElement('div');
+    rule.className = 'famRule';
+    content.appendChild(rule);
+
+    var grid = document.createElement('div');
+    grid.className = 'grid';
+    list.forEach(function(it){ grid.appendChild(cardFor(it)); });
+    content.appendChild(grid);
+  });
+}
+
+/* =========================================================
+   CAMBI VALUTA LIVE (per confronto netto export)
+   fonti in ordine: Coinbase mid-market (continuo) →
+   Frankfurter/ECB (giornaliero) → open.er-api (giornaliero)
+   ========================================================= */
+var FX_KEY = 'apvet_fx_v2';
+var FX_TTL = 1000*60*5; // 5 minuti
+var VAT = {CHF:0.081, EUR:0.22, USD:0}; // CH 8.1% · IT 22% · US: sales tax non inclusa nel listino
+
+function fxValid(c){
+  return c && c.ts && (Date.now()-c.ts < FX_TTL) && c.rates && c.rates.EUR > 0 && c.rates.USD > 0;
+}
+
+async function getRates(force){
+  if(!force){
+    try{
+      var raw = localStorage.getItem(FX_KEY);
+      if(raw){ var c = JSON.parse(raw); if(fxValid(c)) return c; }
+    }catch(e){}
+  }
+
+  function store(o){
+    try{ localStorage.setItem(FX_KEY, JSON.stringify(o)); }catch(e){}
+    return o;
+  }
+
+  // 1) Coinbase — mid-market, aggiornato di continuo
+  try{
+    var r = await timeoutFetch('https://api.coinbase.com/v2/exchange-rates?currency=CHF', 10000);
+    if(r.ok){
+      var j = await r.json();
+      var rt = j && j.data && j.data.rates;
+      if(rt && Number(rt.EUR) > 0 && Number(rt.USD) > 0){
+        return store({ts:Date.now(), source:'Coinbase mid-market', live:true,
+                      rates:{EUR:Number(rt.EUR), USD:Number(rt.USD)}});
+      }
+    }
+  }catch(e){}
+
+  // 2) Frankfurter / BCE — riferimento giornaliero
+  try{
+    var r2 = await timeoutFetch('https://api.frankfurter.app/latest?from=CHF&to=EUR,USD', 10000);
+    if(r2.ok){
+      var j2 = await r2.json();
+      if(j2 && j2.rates && j2.rates.EUR && j2.rates.USD){
+        return store({ts:Date.now(), source:'ECB reference'+(j2.date?' '+j2.date:''), live:false,
+                      rates:{EUR:j2.rates.EUR, USD:j2.rates.USD}});
+      }
+    }
+  }catch(e){}
+
+  // 3) open.er-api
+  try{
+    var r3 = await timeoutFetch('https://open.er-api.com/v6/latest/CHF', 10000);
+    if(r3.ok){
+      var j3 = await r3.json();
+      if(j3 && j3.rates && j3.rates.EUR && j3.rates.USD){
+        return store({ts:Date.now(), source:'exchangerate-api', live:false,
+                      rates:{EUR:j3.rates.EUR, USD:j3.rates.USD}});
+      }
+    }
+  }catch(e){}
+
+  return null;
+}
+
+function nfmt(n, loc){
+  try{ return new Intl.NumberFormat(loc||'de-CH', {maximumFractionDigits:0}).format(Math.round(n)); }
+  catch(e){ return String(Math.round(n)); }
+}
+
+function setStatus(itemsArr){
+  var bar = document.getElementById('statusBar');
+  bar.innerHTML = itemsArr.map(function(it){
+    return '<span><span class="dot '+it.tone+'"></span>'+it.html+'</span>';
+  }).join('') + '<span id="tsLabel"></span>';
+}
+
+/* =========================================================
+   SCHEDA PRODOTTO STAMPABILE
+   ========================================================= */
+var AP_LOGO_DARK = 'https://www.audemarspiguet.com/etc.clientlibs/ap-com/ui/clientlibs/publish/resources/static/audemars-piguet-logo.svg';
+
+function hiRes(url){
+  if(!url) return '';
+  return url.replace(/\?.*$/,'') + '?size=1200,0&fmt=avif-alpha&dpr=off';
+}
+
+function statusLabel(it){
+  if(it.views['core-collection']) return 'Current collection';
+  if(it.views['special']) return 'Special edition';
+  if(it.views['legacy']) return 'Legacy / discontinued';
+  return '—';
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+function openSheet(it, imgEl, withTax){
+  var body = document.getElementById('sheetBody');
+  var src = hiRes((imgEl && imgEl.src) || imgMap[it.ref] || it.img || '');
+  var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+
+  var specs = [
+    ['Collection', it.collName],
+    ['Model', it.title || '—'],
+    ['Reference', it.ref],
+    ['Case material', it.materials || '—'],
+    ['Case size', it.size || '—'],
+    ['Availability', statusLabel(it)]
+  ];
+
+  var html = '';
+  html += '<div class="sheet-head">';
+  html += '<img src="'+AP_LOGO_DARK+'" alt="Audemars Piguet" onerror="this.outerHTML=\'<div class=&quot;hfallback&quot;>AUDEMARS PIGUET</div>\'">';
+  html += '</div>';
+
+  html += '<div class="sheet-photo">' + (src
+    ? '<img src="'+src+'" alt="'+escapeHtml(it.collName+' '+it.ref)+'">'
+    : '<div style="font-size:11px;letter-spacing:.2em;color:#b3b7bd;text-transform:uppercase">Image not available</div>') + '</div>';
+
+  html += '<div class="sheet-eyebrow">'+escapeHtml(it.collName)+'</div>';
+  html += '<div class="sheet-title">'+escapeHtml(it.title || it.collName)+'</div>';
+  html += '<div class="sheet-ref">Ref. '+escapeHtml(it.ref)+'</div>';
+  html += '<div class="sheet-rule"></div>';
+
+  html += '<div class="sheet-cols">';
+  html += '<div class="sheet-col"><div class="sheet-h">Specifications</div>';
+  specs.forEach(function(s){
+    html += '<div class="srow"><span class="k">'+escapeHtml(s[0])+'</span><span class="v">'+escapeHtml(s[1])+'</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="sheet-col"><div class="sheet-h">Official retail prices</div><div id="sheetPrices">';
+  PRICE_LOCALES.forEach(function(loc){
+    html += '<div class="srow"><span class="k">'+loc.flag+' '+loc.label+'</span><span class="v gold" data-cur="'+loc.label+'">…</span></div>';
+  });
+  html += '</div></div>';
+  html += '</div>';
+
+  if(withTax) html += '<div id="taxSection"></div>';
+
+  html += '<div class="sheet-foot">';
+  html += '<b>'+escapeHtml(it.ref)+'</b> · sheet generated on '+today+'<br>';
+  html += 'Prices are official Audemars Piguet list prices for Switzerland, Italy and the United States, retrieved from audemarspiguet.com. Subject to change and to local taxes and duties. Unofficial document — Audemars Piguet® is a trademark of Audemars Piguet Holding SA.';
+  html += '</div>';
+
+  body.innerHTML = html;
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // prezzi
+  function fill(entry){
+    var box = document.getElementById('sheetPrices');
+    if(box){
+      PRICE_LOCALES.forEach(function(loc){
+        var cell = box.querySelector('[data-cur="'+loc.label+'"]');
+        if(!cell) return;
+        var p = entry && entry[loc.label];
+        cell.textContent = p ? (loc.label+' '+fmtPrice(p, loc)) : 'On request';
+        if(!p) cell.classList.remove('gold');
+      });
+    }
+    if(withTax) buildTaxSection(entry);
+  }
+  priceReady.then(function(){
+    if(!priceEngineOn){ fill(null); return; }
+    var c = priceCache[it.ref];
+    if(c && (Date.now() - c.ts < PRICE_TTL)){ fill(c); return; }
+    getPrices(it.ref).then(fill, function(){ fill(null); });
+  });
+}
+
+/* ---------- analisi netto export ---------- */
+async function buildTaxSection(entry){
+  var host = document.getElementById('taxSection');
+  if(!host) return;
+  host.innerHTML = '<div class="sheet-h" style="margin-top:18px">Export analysis · net of VAT</div>'
+                 + '<div style="font-size:11px;color:#8b8f96;padding:6px 0">Loading exchange rates…</div>';
+
+  var markets = [
+    {label:'CHF', flag:'🇨🇭', name:'Switzerland', vat:VAT.CHF, vatLabel:'8.1%', fmt:'de-CH'},
+    {label:'EUR', flag:'🇪🇺', name:'Italy (EU)',  vat:VAT.EUR, vatLabel:'22%',  fmt:'de-DE'},
+    {label:'USD', flag:'🇺🇸', name:'United States', vat:VAT.USD, vatLabel:'—',  fmt:'en-US'}
+  ];
+
+  var avail = markets.filter(function(m){ return entry && entry[m.label]; });
+  if(!avail.length){
+    host.innerHTML = '<div class="sheet-h" style="margin-top:18px">Export analysis · net of VAT</div>'
+                   + '<div style="font-size:11.5px;color:#8b8f96;padding:8px 0">No official list prices available for this reference.</div>';
+    return;
+  }
+
+  var fx = await getRates();
+
+  avail.forEach(function(m){
+    var gross = entry[m.label].amount;
+    m.gross = gross;
+    m.net = gross / (1 + m.vat);
+    if(!fx){ m.netCHF = null; return; }
+    m.netCHF = (m.label === 'CHF') ? m.net : (m.net / fx.rates[m.label]);
+    m.netEUR = m.netCHF * fx.rates.EUR;
+    m.netUSD = m.netCHF * fx.rates.USD;
+  });
+
+  var comparable = fx ? avail.filter(function(m){ return m.netCHF; }) : [];
+  var best = null;
+  if(comparable.length){
+    best = comparable.reduce(function(a,b){ return b.netCHF < a.netCHF ? b : a; });
+  }
+
+  var h = '';
+  h += '<div class="sheet-h" style="margin-top:18px">Export analysis · net of VAT</div>';
+  h += '<div class="taxwrap"><table class="taxtable"><thead><tr>'
+     + '<th>Market</th><th>List</th><th>VAT</th><th>Net CHF</th><th>Net EUR</th><th>Net USD</th><th>Δ</th>'
+     + '</tr></thead><tbody>';
+  avail.forEach(function(m){
+    var isBest = best && m === best;
+    var delta = '—';
+    if(best && m.netCHF){
+      if(isBest) delta = '<span class="bestTag">Best</span>';
+      else delta = '<span class="pct">+'+((m.netCHF - best.netCHF)/best.netCHF*100).toFixed(1)+'%</span>';
+    }
+    h += '<tr'+(isBest?' class="isbest"':'')+'>'
+       + '<td>'+m.flag+' '+m.name+'</td>'
+       + '<td>'+m.label+' '+nfmt(m.gross, m.fmt)+'</td>'
+       + '<td>'+m.vatLabel+'</td>'
+       + '<td class="gold">'+(m.netCHF ? nfmt(m.netCHF, 'de-CH') : '—')+'</td>'
+       + '<td>'+(m.netEUR ? nfmt(m.netEUR, 'de-DE') : '—')+'</td>'
+       + '<td>'+(m.netUSD ? nfmt(m.netUSD, 'en-US') : '—')+'</td>'
+       + '<td class="dlt">'+delta+'</td>'
+       + '</tr>';
+  });
+  h += '</tbody></table></div>';
+
+  if(best && comparable.length > 1){
+    var bLoc = {CHF:'de-CH', EUR:'de-DE', USD:'en-US'}[best.label] || 'de-CH';
+    var others = [];
+    if(best.label !== 'CHF') others.push('CHF '+nfmt(best.netCHF, 'de-CH'));
+    if(best.label !== 'EUR') others.push('EUR '+nfmt(best.netEUR, 'de-DE'));
+    if(best.label !== 'USD') others.push('USD '+nfmt(best.netUSD, 'en-US'));
+    h += '<div class="bestbox">'
+       + '<span class="bb-k">Best market</span>'
+       + '<span class="bb-v">'+best.flag+' '+best.name+' · '+best.label+' '+nfmt(best.net, bLoc)+' net'
+       + (others.length ? ' <span class="bb-eq">('+others.join(') (')+')</span>' : '')
+       + '</span>'
+       + '</div>';
+  }
+
+  h += '<div class="taxnote">';
+  h += 'Net prices exclude VAT (Switzerland 8.1%, Italy 22%) and are indicative of an export or tax-free purchase; actual refunds are usually lower once agency fees are deducted. US list prices are quoted before state sales tax, which is added at purchase and is not recoverable. ';
+  if(fx){
+    var fxTime = new Date(fx.ts).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+    h += 'Rates: 1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD · '
+       + escapeHtml(fx.source || 'market') + ', retrieved ' + fxTime + '. ';
+  }
+  else h += 'Exchange rates unavailable — cross-currency comparison not shown. ';
+  h += 'Import duties, customs and warranty terms are not included in this comparison.';
+  h += '</div>';
+
+  host.innerHTML = h;
+}
+
+/* =========================================================
+   ORDINE STAMPABILE MULTI-MODELLO (dalla Wishlist)
+   ========================================================= */
+function makeOrderNo(){
+  var d = new Date();
+  var y = String(d.getFullYear()).slice(2);
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var day = String(d.getDate()).padStart(2,'0');
+  var r = String(Math.floor(Math.random()*90)+10);
+  return 'AP-'+y+m+day+'-'+r;
+}
+
+async function openOrderSheet(){
+  var body = document.getElementById('sheetBody');
+  var refs = Object.keys(wishlist);
+  var wished = items.filter(function(it){ return refs.indexOf(it.ref) !== -1; });
+  wished.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+
+  var loc = null;
+  PRICE_LOCALES.forEach(function(l){ if(l.label === wishLoc) loc = l; });
+  if(!loc) loc = PRICE_LOCALES[0];
+
+  var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+  var orderNo = makeOrderNo();
+
+  var html = '';
+  html += '<div class="sheet-head">';
+  html += '<img src="'+AP_LOGO_DARK+'" alt="Audemars Piguet" onerror="this.outerHTML=\'<div class=&quot;hfallback&quot;>AUDEMARS PIGUET</div>\'">';
+  html += '</div>';
+  html += '<div class="sheet-eyebrow">Order confirmation</div>';
+  html += '<div class="sheet-title" style="font-size:19px">'
+        + '<input id="ordNoInput" value="'+escapeHtml(orderNo)+'" style="text-align:center;font:inherit;color:inherit;letter-spacing:inherit;border:none;background:transparent;width:100%;outline:none">'
+        + '</div>';
+  html += '<div class="sheet-ref">'+today+'</div>';
+  html += '<div class="sheet-rule"></div>';
+
+  var suppName = document.getElementById('suppName').value.trim();
+  var suppAddr = document.getElementById('suppAddr').value.trim();
+  var buyer = getBuyer();
+
+  html += '<div class="sheet-cols" style="margin-top:18px">';
+  html += '<div class="sheet-col"><div class="sheet-h">Sold by</div>'
+        + '<div class="partyname">'+escapeHtml(suppName || '—')+'</div>'
+        + (suppAddr ? '<div class="partyaddr">'+escapeHtml(suppAddr)+'</div>' : '')
+        + '</div>';
+  html += '<div class="sheet-col"><div class="sheet-h">Buyer</div>'
+        + '<div class="partyname">'+escapeHtml(buyer.name || '—')+'</div>'
+        + (buyer.addr ? '<div class="partyaddr">'+escapeHtml(buyer.addr)+'</div>' : '')
+        + '</div>';
+  html += '</div>';
+
+  html += '<table class="ordtable"><thead><tr>'
+        + '<th colspan="2">Item</th><th class="r">Unit price</th>'
+        + '</tr></thead><tbody id="ordRows">';
+  wished.forEach(function(it){
+    var d2 = [];
+    if(it.ref) d2.push('Ref. '+it.ref);
+    if(it.materials) d2.push(it.materials);
+    if(it.size) d2.push(it.size);
+    var img = imgMap[it.ref] || it.img || '';
+    html += '<tr data-ref="'+escapeHtml(it.ref)+'">'
+          + '<td class="ph"><div class="box">'+(img ? '<img src="'+escapeHtml(img)+'">' : '')+'</div></td>'
+          + '<td><div class="d1">'+escapeHtml('Audemars Piguet ' + (it.collName||'') + ' ' + (it.title||'')).trim()+'</div>'
+          + '<div class="d2">'+escapeHtml(d2.join(' · '))+'</div></td>'
+          + '<td class="r gold" data-price="1">…</td>'
+          + '</tr>';
+  });
+  html += '</tbody></table>';
+
+  html += '<div class="ordtotals">'
+        + '<div class="orow"><span>Subtotal</span><span class="v" id="ordSub">…</span></div>'
+        + '<div class="orow big"><span>Total</span><span class="v gold" id="ordTot">…</span></div>'
+        + '<div class="orow" id="ordTaxRow" style="display:none"><span id="ordTaxK">Net (detax)</span><span class="v" id="ordTax">…</span></div>'
+        + '</div>';
+
+  html += '<div class="sheet-foot">';
+  html += '<b id="ordNoFoot">'+orderNo+'</b> &middot; '+wished.length+' watch'+(wished.length>1?'es':'')+' &middot; generated on '+today+'<br>';
+  html += 'Prices are official Audemars Piguet list prices in '+loc.label+', retrieved from audemarspiguet.com. Subject to change. This document is a sales order confirmation and does not constitute an invoice. Unofficial document &mdash; Audemars Piguet&reg; is a trademark of Audemars Piguet Holding SA.';
+  html += '<div id="ordNetFx" style="margin-top:6px"></div>';
+  html += '</div>';
+
+  body.innerHTML = html;
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  var ordNoInput = document.getElementById('ordNoInput');
+  if(ordNoInput){
+    ordNoInput.addEventListener('input', function(){
+      var f = document.getElementById('ordNoFoot');
+      if(f) f.textContent = ordNoInput.value;
+    });
+  }
+
+  var showDetax = document.getElementById('wbDetax').checked;
+  var taxRate = Number(document.getElementById('wbTaxRate').value || 0) / 100;
+
+  await priceReady;
+  var sub = 0;
+  for(var i=0;i<wished.length;i++){
+    var it = wished[i];
+    var entry = priceCache[it.ref];
+    if(!(entry && (Date.now()-entry.ts < PRICE_TTL))){
+      if(priceEngineOn){ try{ entry = await getPrices(it.ref); }catch(e){ entry = null; } }
+    }
+    var p = entry && entry[wishLoc];
+    var row = document.querySelector('#ordRows tr[data-ref="'+it.ref.replace(/"/g,'')+'"] td[data-price]');
+    if(row){
+      row.textContent = p ? (wishLoc+' '+nfmt(p.amount, loc.fmt)) : 'On request';
+    }
+    if(p) sub += p.amount;
+  }
+
+  var total = sub;   // il totale d'ordine è sempre il prezzo ufficiale pieno
+  if(showDetax){
+    var net = sub / (1 + taxRate);
+    document.getElementById('ordTaxK').textContent = 'Net (detax '+(taxRate*100).toFixed(1)+'%)';
+    document.getElementById('ordTax').textContent = wishLoc + ' ' + nfmt(net, loc.fmt);
+    document.getElementById('ordTaxRow').style.display = 'flex';
+  }
+
+  var fx = await getRates();
+  var fxBox = document.getElementById('ordNetFx');
+  if(fxBox){
+    if(fx){
+      var baseCHF = (wishLoc === 'CHF') ? total : total / fx.rates[wishLoc];
+      var totEUR = baseCHF * fx.rates.EUR;
+      var totUSD = baseCHF * fx.rates.USD;
+      fxBox.textContent = 'At current rate — CHF '+nfmt(baseCHF,'de-CH')+' · EUR '+nfmt(totEUR,'de-DE')+' · USD '+nfmt(totUSD,'en-US')
+                         + ' (1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD, '+(fx.source||'market')+')';
+    } else {
+      fxBox.textContent = 'Equivalent in other currencies unavailable — exchange rates could not be retrieved.';
+    }
+  }
+
+  document.getElementById('ordSub').textContent = wishLoc + ' ' + nfmt(sub, loc.fmt);
+  document.getElementById('ordTot').textContent = wishLoc + ' ' + nfmt(total, loc.fmt);
+}
+
+function closeSheet(){
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ---------- init ---------- */
+async function init(){
+  var statusItems = [];
+  var res = null;
+
+  var cached = readCache();
+  if(cached){
+    items = cached.list;
+    res = {source:'cache', ts:cached.ts};
+  } else {
+    var live = await discover();
+    if(live){
+      items = live;
+      writeCache(live);
+      res = {source:'live', ts:Date.now()};
+    } else {
+      items = [];
+      res = {source:'none', ts:Date.now()};
+    }
+  }
+
+  var nCore=0, nLeg=0, nSpec=0;
+  items.forEach(function(it){
+    if(it.views['core-collection']) nCore++;
+    if(it.views['legacy']) nLeg++;
+    if(it.views['special']) nSpec++;
+  });
+
+  if(res.source==='live') statusItems.push({tone:'ok', html:'Live catalogue · '+items.length+' references ('+nCore+' current · '+nSpec+' special · '+nLeg+' legacy)'});
+  else if(res.source==='cache') statusItems.push({tone:'ok', html:'Catalogue (cached) · '+items.length+' references · <button onclick="hardRefresh()">refresh</button>'});
+  else statusItems.push({tone:'err', html:'AP feeds unreachable. Check the proxy in settings and retry.'});
+
+  statusItems.push({tone:'warn', html:'<span id="priceStatus">Prices: detecting official feed…</span>'});
+  setStatus(statusItems);
+  var ts = document.getElementById('tsLabel');
+  if(ts) ts.textContent = new Date(res.ts).toLocaleString('en-GB');
+
+  buildImgIndex();
+  renderViews();
+  renderTabs();
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('main').hidden = false;
+  renderGrid();
+
+  // rileva il motore prezzi: campioni con listino quasi certo (acciaio core), max 3
+  var samples = [];
+  function addSample(ref){ if(ref && samples.indexOf(ref) === -1 && samples.length < 3) samples.push(ref); }
+  for(var si=0; si<items.length; si++){
+    var itc = items[si];
+    if(itc.views['core-collection'] && /^\d{5}ST\./.test(itc.ref)) addSample(itc.ref);
+    if(samples.length >= 3) break;
+  }
+  if(!samples.length){
+    for(var sj=0; sj<items.length && samples.length<3; sj++){
+      if(items[sj].views['core-collection']) addSample(items[sj].ref);
+    }
+  }
+  if(!samples.length && items.length) addSample(items[0].ref);
+  detectPriceEngine(samples).then(function(){
+    var ps = document.getElementById('priceStatus');
+    if(!ps) return;
+    if(priceEngineOn){
+      ps.previousElementSibling && (ps.previousElementSibling.className = 'dot ok');
+      ps.parentElement.querySelector('.dot').className = 'dot ok';
+      ps.textContent = 'Official prices live: CHF · EUR · USD';
+    } else {
+      ps.textContent = 'Price feed not responding — shown as "on request"';
+    }
+  });
+}
+
+function hardRefresh(){
+  try{ localStorage.removeItem(CACHE_KEY); }catch(e){}
+  location.reload();
+}
+
+/* ---------- eventi UI ---------- */
+document.getElementById('search').addEventListener('input', function(e){
+  query = e.target.value.trim().toUpperCase();
+  renderGrid();
+});
+document.getElementById('gearBtn').onclick = function(){
+  var p = document.getElementById('panel');
+  document.getElementById('proxyInput').value = proxyBase;
+  p.classList.toggle('open');
+};
+document.getElementById('closePanel').onclick = function(){
+  document.getElementById('panel').classList.remove('open');
+};
+document.getElementById('saveProxy').onclick = function(){
+  var v = document.getElementById('proxyInput').value.trim();
+  if(v){ try{ localStorage.setItem('apvet_proxy', v); }catch(e){} }
+  hardRefresh();
+};
+document.getElementById('testProxy').onclick = async function(){
+  var out = document.getElementById('testOut');
+  out.textContent = 'Testing proxy…';
+  var v = document.getElementById('proxyInput').value.trim();
+  if(v) proxyBase = v;
+  var lines = [];
+  try{
+    var r = await timeoutFetch(prox('https://www.audemarspiguet.com/us/en/collections/royal-oak-collection.model.json'), 12000);
+    var t = await r.text();
+    lines.push((r.ok && t.indexOf('endpoints') !== -1)
+      ? 'Proxy OK ✓ — AP feeds respond through the worker.'
+      : 'Worker responds but AP returns HTTP '+r.status+'.');
+  }catch(e){
+    lines.push('Proxy unreachable ✗ — '+e.message);
+  }
+  lines.push('');
+  lines.push('Price engine: ' + (priceEngineOn===true ? 'ON ✓' : priceEngineOn===false ? 'OFF ✗' : 'detecting…'));
+  if(priceProbeLog.length){
+    lines.push('Probe log:');
+    priceProbeLog.slice(0,12).forEach(function(l){ lines.push('· '+l); });
+  }
+  out.textContent = lines.join('\n');
+};
+document.getElementById('clearCache').onclick = function(){
+  try{ localStorage.removeItem(CACHE_KEY); }catch(e){}
+  location.reload();
+};
+
+document.getElementById('wishToggle').onclick = function(){ setWishlistMode(!wishlistMode); };
+document.getElementById('wbClear').onclick = function(){
+  if(!confirm('Clear the wishlist?')) return;
+  wishlist = {};
+  saveWish();
+  updateWishHeader();
+  renderGrid();
+};
+document.getElementById('wbPrint').onclick = openOrderSheet;
+document.getElementById('wbDetax').addEventListener('change', function(e){
+  document.getElementById('wbTaxRate').style.display = e.target.checked ? '' : 'none';
+});
+
+/* --- profilo venditore (Settings) --- */
+(function(){
+  document.getElementById('paMiami').value = profile.miami;
+  document.getElementById('paParadiso').value = profile.paradiso;
+  document.getElementById('saveProfile').onclick = function(){
+    profile.miami = document.getElementById('paMiami').value.trim();
+    profile.paradiso = document.getElementById('paParadiso').value.trim();
+    saveProfile();
+    renderBuyerTabs();
+  };
+})();
+
+/* --- buyer: due schede rapide + override manuale --- */
+function renderBuyerTabs(){
+  document.getElementById('buyerNameUS').textContent = profile.name;
+  document.getElementById('buyerNameCH').textContent = profile.name;
+  document.getElementById('buyerTabs').querySelectorAll('button').forEach(function(b){
+    b.classList.toggle('on', b.dataset.loc === profile.ship);
+  });
+  document.getElementById('buyerPreview').textContent = shipAddress();
+}
+document.getElementById('buyerTabs').querySelectorAll('button').forEach(function(b){
+  b.onclick = function(){
+    profile.ship = b.dataset.loc;
+    saveProfile();
+    renderBuyerTabs();
+  };
+});
+(function(){
+  var nEl = document.getElementById('custNameManual');
+  var aEl = document.getElementById('custAddrManual');
+  nEl.value = profile.manualBuyerName || '';
+  aEl.value = profile.manualBuyerAddr || '';
+  nEl.addEventListener('input', function(){ profile.manualBuyerName = nEl.value; saveProfile(); });
+  aEl.addEventListener('input', function(){ profile.manualBuyerAddr = aEl.value; saveProfile(); });
+})();
+renderBuyerTabs();
+
+/* --- ricerca boutique --- */
+function googleSearchUrl(name){
+  var q = 'Audemars Piguet boutique ' + (name||'') + ' official address';
+  return 'https://www.google.com/search?q=' + encodeURIComponent(q.trim());
+}
+
+populateBoutiquePicker();
+(function(){
+  var p = document.getElementById('storesStatusPanel');
+  p.textContent = liveStores.length ? (liveStores.length+' boutiques cached.') : 'Not loaded yet.';
+  document.getElementById('refreshStores').onclick = function(){
+    loadStoresDirectory(p);
+  };
+})();
+if(liveStores.length){
+  document.getElementById('suppLookupMsg').textContent = liveStores.length+' official boutiques loaded.';
+} else {
+  document.getElementById('suppLookupMsg').innerHTML = 'Directory not loaded yet. <a href="#" id="loadStoresLink" style="color:inherit;text-decoration:underline">Load official boutiques (~1 min) →</a>';
+  document.getElementById('loadStoresLink').onclick = function(e){
+    e.preventDefault();
+    var msg = document.getElementById('suppLookupMsg');
+    msg.className = '';
+    loadStoresDirectory(msg);
+  };
+}
+
+document.getElementById('suppPick').addEventListener('change', function(e){
+  var msg = document.getElementById('suppLookupMsg');
+  var nameEl = document.getElementById('suppName');
+  var addrEl = document.getElementById('suppAddr');
+  if(e.target.value === '__manual__'){
+    nameEl.value = '';
+    addrEl.value = '';
+    nameEl.focus();
+    msg.className = '';
+    msg.textContent = 'Type the reseller name and address manually.';
+    return;
+  }
+  var hit = liveStores[Number(e.target.value)];
+  if(!hit) return;
+  nameEl.value = hit.name;
+  addrEl.value = hit.addr;
+  msg.className = 'ok';
+  msg.innerHTML = 'Live from audemarspiguet.com — addresses can change; <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">verify on Google →</a>';
+});
+
+document.getElementById('sheetPrint').onclick = function(){ window.print(); };
+document.getElementById('sheetClose').onclick = closeSheet;
+document.getElementById('sheetOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeSheet();
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('sheetOverlay').classList.contains('open')) closeSheet();
+});
+
+updateWishHeader();
+renderLocPick();
+(function(){
+  var rateEl = document.getElementById('wbTaxRate');
+  if(rateEl && VAT[wishLoc] != null) rateEl.value = (VAT[wishLoc]*100).toFixed(1);
+})();
+
+init();
+</script>
+</body>
+</html>
