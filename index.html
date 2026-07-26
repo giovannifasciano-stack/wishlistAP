@@ -1455,7 +1455,8 @@ function isWished(ref){ return !!wishlist[ref]; }
    ========================================================= */
 var SYNC_KEY = 'apwish_synccode';
 var SYNC_TS_KEY = 'apwish_sync_ts';
-var syncCode = (function(){ try{ return localStorage.getItem(SYNC_KEY) || ''; }catch(e){ return ''; } })();
+var DEFAULT_SYNC_CODE = 'giovanni-fasciano-ap-wl-7f3k2';
+var syncCode = (function(){ try{ return localStorage.getItem(SYNC_KEY) || DEFAULT_SYNC_CODE; }catch(e){ return DEFAULT_SYNC_CODE; } })();
 var syncTs = (function(){ try{ return Number(localStorage.getItem(SYNC_TS_KEY) || 0); }catch(e){ return 0; } })();
 var syncPushTimer = null;
 var syncBusy = false;
