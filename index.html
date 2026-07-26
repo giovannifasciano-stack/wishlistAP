@@ -332,8 +332,11 @@ footer b{color:var(--oro);font-weight:500}
   body > *{display:none!important}
   #sheetOverlay{display:block!important;position:static;padding:0;background:none;overflow:visible;backdrop-filter:none}
   .sheet-actions{display:none!important}
-  .sheet{box-shadow:none;max-width:none;margin:0;padding:0;display:block!important;min-height:0!important}
-  .sheet-foot{margin-top:24px!important}
+  .sheet{box-shadow:none;max-width:none;margin:0;padding:0 0 90px;display:block!important;min-height:0!important}
+  .sheet-foot{
+    margin-top:24px!important;position:fixed!important;left:0;right:0;bottom:0;
+    background:#fff;border-top:1px solid #e3ded4;padding-top:10px!important;
+  }
   .sheet-photo{height:200px}
 }
 
