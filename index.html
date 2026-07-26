@@ -1858,8 +1858,10 @@ async function openOrderSheet(){
         + '</div>';
   html += '</div>';
 
+  var showDetaxHead = document.getElementById('wbDetax').checked;
+  var taxRateHead = Number(document.getElementById('wbTaxRate').value || 0);
   html += '<table class="ordtable"><thead><tr>'
-        + '<th colspan="2">Item</th><th class="r">Unit price</th>'
+        + '<th colspan="2">Item</th><th class="r">'+(showDetaxHead ? 'Unit price (net, detax '+taxRateHead.toFixed(1)+'%)' : 'Unit price')+'</th>'
         + '</tr></thead><tbody id="ordRows">';
   wished.forEach(function(it){
     var d2 = [];
@@ -1877,9 +1879,8 @@ async function openOrderSheet(){
   html += '</tbody></table>';
 
   html += '<div class="ordtotals">'
-        + '<div class="orow"><span>Subtotal</span><span class="v" id="ordSub">…</span></div>'
-        + '<div class="orow big"><span>Total</span><span class="v gold" id="ordTot">…</span></div>'
-        + '<div class="orow" id="ordTaxRow" style="display:none"><span id="ordTaxK">Net (detax)</span><span class="v" id="ordTax">…</span></div>'
+        + '<div class="orow"><span id="ordSubK">Subtotal</span><span class="v" id="ordSub">…</span></div>'
+        + '<div class="orow big"><span id="ordTotK">Total</span><span class="v gold" id="ordTot">…</span></div>'
         + '</div>';
 
   html += '<div class="sheet-foot">';
@@ -1904,7 +1905,7 @@ async function openOrderSheet(){
   var taxRate = Number(document.getElementById('wbTaxRate').value || 0) / 100;
 
   await priceReady;
-  var sub = 0;
+  var sub = 0;   // sempre il lordo di listino ufficiale, per i calcoli
   for(var i=0;i<wished.length;i++){
     var it = wished[i];
     var entry = priceCache[it.ref];
@@ -1914,17 +1915,21 @@ async function openOrderSheet(){
     var p = entry && entry[wishLoc];
     var row = document.querySelector('#ordRows tr[data-ref="'+it.ref.replace(/"/g,'')+'"] td[data-price]');
     if(row){
-      row.textContent = p ? (wishLoc+' '+nfmt(p.amount, loc.fmt)) : 'On request';
+      if(p){
+        var shown = showDetax ? (p.amount / (1 + taxRate)) : p.amount;
+        row.textContent = wishLoc + ' ' + nfmt(shown, loc.fmt);
+      } else {
+        row.textContent = 'On request';
+      }
     }
     if(p) sub += p.amount;
   }
 
-  var total = sub;   // il totale d'ordine è sempre il prezzo ufficiale pieno
+  var total = showDetax ? (sub / (1 + taxRate)) : sub;
+
   if(showDetax){
-    var net = sub / (1 + taxRate);
-    document.getElementById('ordTaxK').textContent = 'Net (detax '+(taxRate*100).toFixed(1)+'%)';
-    document.getElementById('ordTax').textContent = wishLoc + ' ' + nfmt(net, loc.fmt);
-    document.getElementById('ordTaxRow').style.display = 'flex';
+    document.getElementById('ordSubK').textContent = 'Subtotal (net, detax '+(taxRate*100).toFixed(1)+'%)';
+    document.getElementById('ordTotK').textContent = 'Total (net, detax)';
   }
 
   var fx = await getRates();
@@ -1934,14 +1939,15 @@ async function openOrderSheet(){
       var baseCHF = (wishLoc === 'CHF') ? total : total / fx.rates[wishLoc];
       var totEUR = baseCHF * fx.rates.EUR;
       var totUSD = baseCHF * fx.rates.USD;
-      fxBox.textContent = 'At current rate — CHF '+nfmt(baseCHF,'de-CH')+' · EUR '+nfmt(totEUR,'de-DE')+' · USD '+nfmt(totUSD,'en-US')
+      fxBox.textContent = (showDetax ? 'Net (detax) at current rate — ' : 'At current rate — ')
+                         + 'CHF '+nfmt(baseCHF,'de-CH')+' · EUR '+nfmt(totEUR,'de-DE')+' · USD '+nfmt(totUSD,'en-US')
                          + ' (1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD, '+(fx.source||'market')+')';
     } else {
       fxBox.textContent = 'Equivalent in other currencies unavailable — exchange rates could not be retrieved.';
     }
   }
 
-  document.getElementById('ordSub').textContent = wishLoc + ' ' + nfmt(sub, loc.fmt);
+  document.getElementById('ordSub').textContent = wishLoc + ' ' + nfmt(sub / (showDetax ? (1+taxRate) : 1), loc.fmt);
   document.getElementById('ordTot').textContent = wishLoc + ' ' + nfmt(total, loc.fmt);
 }
 
