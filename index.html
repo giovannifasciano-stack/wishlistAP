@@ -162,6 +162,7 @@ main{padding:20px;max-width:1400px;margin:0 auto}
 }
 .badge.special{border-color:var(--oro);color:var(--oro)}
 .badge.legacy{border-color:var(--acciaio-soft)}
+body.wishlist-mode .badge{top:38px}
 .octa-frame{
   width:100%;aspect-ratio:1;max-width:200px;
   background:radial-gradient(circle at 50% 38%, var(--grafite), var(--nero) 78%);
@@ -416,6 +417,16 @@ footer b{color:var(--oro);font-weight:500}
 }
 .wishbtn:hover{border-color:var(--oro);color:var(--oro)}
 .wishbtn.on{color:#e0577a;border-color:#e0577a;background:rgba(224,87,122,.12)}
+
+.selbtn{
+  position:absolute;top:8px;right:8px;z-index:2;
+  width:26px;height:26px;line-height:1;
+  background:rgba(19,20,23,.85);border:1.5px solid var(--ordine);border-radius:4px;
+  color:var(--ordine);font-size:13px;font-weight:700;display:grid;place-items:center;padding:0;
+  transition:all .15s;
+}
+.selbtn:hover{background:var(--ordine-soft)}
+.selbtn.on{background:var(--ordine);color:#0a0a0b}
 
 .hdr-actions #wishToggle{
   position:relative;background:none;border:1px solid var(--linea);border-radius:2px;
@@ -854,6 +865,11 @@ var I18N = {
   noMatch:{en:'No references match your filters.', it:'Nessuna referenza corrisponde ai filtri.'},
   wishEmpty:{en:'Your wishlist is empty — tap the \u2665 on any watch to add it.', it:'La tua lista desideri \u00e8 vuota — tocca il \u2665 su un orologio per aggiungerlo.'},
   wishlist:{en:'Wishlist', it:'Lista desideri'},
+  includeInOrder:{en:'Include in this order', it:'Includi in questo ordine'},
+  selectAll:{en:'Select all', it:'Seleziona tutti'},
+  selectNone:{en:'Clear selection', it:'Deseleziona tutti'},
+  selectedCount:{en:'selected', it:'selezionati'},
+  selectAtLeastOne:{en:'Tick at least one watch to include in the order (top-right corner of each card).', it:'Seleziona almeno un orologio da includere nell\u2019ordine (angolo in alto a destra di ogni scheda).'},
   watch1:{en:'watch', it:'orologio'},
   watches:{en:'watches', it:'orologi'},
   createOrder:{en:'Create order', it:'Crea ordine'},
@@ -1469,11 +1485,37 @@ function getBuyer(){
 }
 
 function toggleWish(ref, btn){
-  if(wishlist[ref]){ delete wishlist[ref]; if(btn){ btn.classList.remove('on'); } }
+  if(wishlist[ref]){
+    delete wishlist[ref];
+    if(orderSelection[ref]){ delete orderSelection[ref]; saveOrderSelection(); }
+    if(btn){ btn.classList.remove('on'); }
+  }
   else{ wishlist[ref] = true; if(btn){ btn.classList.add('on'); } }
   saveWish();
   updateWishHeader();
   if(wishlistMode) renderGrid();
+}
+
+/* =========================================================
+   SELEZIONE PER L'ORDINE — la wishlist non implica "compra tutto";
+   qui si sceglie quale sottoinsieme entra nell'ordine corrente.
+   ========================================================= */
+var ORDERSEL_KEY = 'apwish_ordersel_v1';
+var orderSelection = (function(){
+  try{ var o = JSON.parse(localStorage.getItem(ORDERSEL_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; }
+  catch(e){ return {}; }
+})();
+function saveOrderSelection(){ try{ localStorage.setItem(ORDERSEL_KEY, JSON.stringify(orderSelection)); }catch(e){} }
+function isSelectedForOrder(ref){ return !!orderSelection[ref]; }
+function toggleOrderSelection(ref){
+  if(orderSelection[ref]) delete orderSelection[ref];
+  else orderSelection[ref] = true;
+  saveOrderSelection();
+}
+function selectedCount(){
+  var n = 0;
+  Object.keys(wishlist).forEach(function(ref){ if(orderSelection[ref]) n++; });
+  return n;
 }
 
 function updateWishHeader(){
@@ -1515,6 +1557,7 @@ function ensureStoresLoaded(){
 
 function setWishlistMode(on){
   wishlistMode = on;
+  document.body.classList.toggle('wishlist-mode', on);
   if(!on){ orderPanelOpen = false; document.getElementById('wishBar').classList.remove('on'); }
   else{ ensureStoresLoaded(); }
   updateWishHeader();
@@ -1630,6 +1673,21 @@ function cardFor(it){
   wishb.title = isWished(it.ref) ? t('removeWish') : t('addWish');
   wishb.onclick = function(e){ e.stopPropagation(); toggleWish(it.ref, wishb); };
   card.appendChild(wishb);
+
+  if(wishlistMode){
+    var selb = document.createElement('button');
+    selb.className = 'selbtn' + (isSelectedForOrder(it.ref) ? ' on' : '');
+    selb.innerHTML = isSelectedForOrder(it.ref) ? '\u2713' : '';
+    selb.title = t('includeInOrder');
+    selb.setAttribute('aria-label', t('includeInOrder'));
+    selb.onclick = function(e){
+      e.stopPropagation();
+      toggleOrderSelection(it.ref);
+      selb.classList.toggle('on', isSelectedForOrder(it.ref));
+      selb.innerHTML = isSelectedForOrder(it.ref) ? '\u2713' : '';
+    };
+    card.appendChild(selb);
+  }
 
   var frame = document.createElement('div');
   frame.className = 'octa-frame';
@@ -1751,13 +1809,36 @@ function renderGrid(){
       h0.style.justifyContent = 'space-between';
       h0.style.flexWrap = 'wrap';
       h0.style.gap = '10px';
-      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+filtered.length+' '+(filtered.length>1?t('watches'):t('watch1'))+'</small></span>';
+      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+filtered.length+' '+(filtered.length>1?t('watches'):t('watch1'))+' &middot; '+selectedCount()+' '+t('selectedCount')+'</small></span>';
+
+      var quickSel = document.createElement('div');
+      quickSel.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+      var selAllBtn = document.createElement('button');
+      selAllBtn.textContent = t('selectAll');
+      selAllBtn.style.cssText = 'background:none;border:1px solid var(--ordine);color:var(--ordine);padding:6px 12px;font-size:10.5px;letter-spacing:.06em;border-radius:2px';
+      selAllBtn.onclick = function(){
+        filtered.forEach(function(it){ orderSelection[it.ref] = true; });
+        saveOrderSelection();
+        renderGrid();
+      };
+      var selNoneBtn = document.createElement('button');
+      selNoneBtn.textContent = t('selectNone');
+      selNoneBtn.style.cssText = 'background:none;border:1px solid var(--linea);color:var(--acciaio-soft);padding:6px 12px;font-size:10.5px;letter-spacing:.06em;border-radius:2px';
+      selNoneBtn.onclick = function(){
+        filtered.forEach(function(it){ delete orderSelection[it.ref]; });
+        saveOrderSelection();
+        renderGrid();
+      };
+      quickSel.appendChild(selAllBtn);
+      quickSel.appendChild(selNoneBtn);
+
       var ordBtn = document.createElement('button');
       ordBtn.id = 'toggleOrderBtn';
       ordBtn.textContent = orderPanelOpen ? t('closeOrder') : t('createOrder');
       ordBtn.style.cssText = 'background:var(--oro);border:1px solid var(--oro);color:#14161a;font-weight:600;padding:8px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;white-space:nowrap';
       ordBtn.onclick = toggleOrderPanel;
-      h0.appendChild(ordBtn);
+      quickSel.appendChild(ordBtn);
+      h0.appendChild(quickSel);
       content.appendChild(h0);
       var rule0 = document.createElement('div');
       rule0.className = 'famRule';
@@ -2076,7 +2157,11 @@ function makeOrderNo(){
 
 async function openOrderSheet(){
   var body = document.getElementById('sheetBody');
-  var refs = Object.keys(wishlist);
+  var refs = Object.keys(wishlist).filter(function(ref){ return orderSelection[ref]; });
+  if(!refs.length){
+    alert(t('selectAtLeastOne'));
+    return;
+  }
   var wished = items.filter(function(it){ return refs.indexOf(it.ref) !== -1; });
   wished.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
 
@@ -2382,7 +2467,9 @@ document.getElementById('wishToggle').onclick = function(){ setWishlistMode(!wis
 document.getElementById('wbClear').onclick = function(){
   if(!confirm('Clear the wishlist?')) return;
   wishlist = {};
+  orderSelection = {};
   saveWish();
+  saveOrderSelection();
   updateWishHeader();
   renderGrid();
 };
