@@ -687,6 +687,14 @@ footer b{color:var(--oro);font-weight:500}
   <div class="row">
     <button class="ghost" id="refreshStores" data-i18n="reloadDirectory">Reload directory (~1 min)</button>
   </div>
+
+  <label id="lblSync" data-i18n="syncLabel" style="margin-top:26px">Sync across devices</label>
+  <input id="syncCodeInput" placeholder="e.g. giovanni-ap" autocomplete="off" data-i18n-ph="syncPh">
+  <div id="syncStatus" style="font-size:11px;color:var(--acciaio-soft);margin-top:6px"></div>
+  <div class="row">
+    <button id="syncConnect" data-i18n="syncConnect">Connect</button>
+    <button class="ghost" id="syncPullNow" data-i18n="syncPullNow">Pull now</button>
+  </div>
 </aside>
 
 <div id="sheetOverlay" role="dialog" aria-modal="true" aria-label="Product sheet">
@@ -916,6 +924,14 @@ var I18N = {
   saveAddresses:{en:'Save addresses', it:'Salva indirizzi'},
   boutiqueDirLabel:{en:'Boutique directory (live from AP)', it:'Elenco boutique (live da AP)'},
   reloadDirectory:{en:'Reload directory (~1 min)', it:'Aggiorna elenco (~1 min)'},
+  syncLabel:{en:'Sync across devices', it:'Sincronizzazione tra dispositivi'},
+  syncPh:{en:'e.g. giovanni-ap', it:'es. giovanni-ap'},
+  syncConnect:{en:'Connect', it:'Collega'},
+  syncPullNow:{en:'Pull now', it:'Aggiorna ora'},
+  syncing:{en:'Syncing…', it:'Sincronizzazione…'},
+  syncOk:{en:'Synced', it:'Sincronizzato'},
+  syncWarn:{en:'Sync unavailable — check connection', it:'Sincronizzazione non riuscita — controlla la connessione'},
+  syncNeedCode:{en:'Enter a sync code first', it:'Inserisci prima un codice'},
   specifications:{en:'Specifications', it:'Specifiche'},
   officialPrices:{en:'Official retail prices', it:'Prezzi ufficiali al pubblico'},
   collection:{en:'Collection', it:'Collezione'},
@@ -1432,7 +1448,95 @@ var wishLoc = (function(){
 })();
 
 function isWished(ref){ return !!wishlist[ref]; }
-function saveWish(){ try{ localStorage.setItem(WISH_KEY, JSON.stringify(wishlist)); }catch(e){} }
+/* =========================================================
+   SINCRONIZZAZIONE TRA DISPOSITIVI
+   Usa il worker esistente (stesso dominio del proxy AP),
+   esteso con /sync?code=... appoggiato a Cloudflare KV.
+   ========================================================= */
+var SYNC_KEY = 'apwish_synccode';
+var SYNC_TS_KEY = 'apwish_sync_ts';
+var syncCode = (function(){ try{ return localStorage.getItem(SYNC_KEY) || ''; }catch(e){ return ''; } })();
+var syncTs = (function(){ try{ return Number(localStorage.getItem(SYNC_TS_KEY) || 0); }catch(e){ return 0; } })();
+var syncPushTimer = null;
+var syncBusy = false;
+
+function syncUrl(){
+  return proxyBase.replace(/\/+$/,'') + '/sync?code=' + encodeURIComponent(syncCode);
+}
+
+function scheduleSyncPush(){
+  if(!syncCode) return;
+  clearTimeout(syncPushTimer);
+  syncPushTimer = setTimeout(pushSync, 1200);
+}
+
+async function pushSync(){
+  if(!syncCode) return;
+  syncBusy = true;
+  syncTs = Date.now();
+  var payload = JSON.stringify({
+    wishlist: wishlist,
+    orderSelection: orderSelection,
+    profile: profile,
+    ts: syncTs
+  });
+  try{
+    try{ localStorage.setItem(SYNC_TS_KEY, String(syncTs)); }catch(e){}
+    var r = await fetch(syncUrl(), { method:'PUT', headers:{'Content-Type':'application/json'}, body: payload });
+    updateSyncStatus(r && r.ok ? 'ok' : 'warn');
+  }catch(e){
+    updateSyncStatus('warn');
+  }
+  syncBusy = false;
+}
+
+async function pullSync(showBusy){
+  if(!syncCode) return false;
+  if(showBusy) updateSyncStatus('busy');
+  try{
+    var r = await fetch(syncUrl());
+    if(!r.ok){ updateSyncStatus('warn'); return false; }
+    var data = await r.json();
+    if(!data || data.found === false || !data.ts){ updateSyncStatus('ok'); return false; }
+    if(data.ts > syncTs){
+      wishlist = data.wishlist || {};
+      orderSelection = data.orderSelection || {};
+      if(data.profile){
+        profile.name = data.profile.name || profile.name;
+        profile.miami = data.profile.miami || profile.miami;
+        profile.paradiso = data.profile.paradiso || profile.paradiso;
+        profile.ship = data.profile.ship || profile.ship;
+        profile.manualBuyerName = data.profile.manualBuyerName || '';
+        profile.manualBuyerAddr = data.profile.manualBuyerAddr || '';
+      }
+      syncTs = data.ts;
+      try{ localStorage.setItem(SYNC_TS_KEY, String(syncTs)); }catch(e){}
+      try{ localStorage.setItem(WISH_KEY, JSON.stringify(wishlist)); }catch(e){}
+      try{ localStorage.setItem(ORDERSEL_KEY, JSON.stringify(orderSelection)); }catch(e){}
+      try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+      updateSyncStatus('ok');
+      return true;
+    }
+    updateSyncStatus('ok');
+    return false;
+  }catch(e){
+    updateSyncStatus('warn');
+    return false;
+  }
+}
+
+function updateSyncStatus(state){
+  var el = document.getElementById('syncStatus');
+  if(!el) return;
+  if(!syncCode){ el.textContent = ''; return; }
+  if(state === 'busy') el.textContent = t('syncing');
+  else if(state === 'ok') el.textContent = t('syncOk');
+  else el.textContent = t('syncWarn');
+}
+function saveWish(){
+  try{ localStorage.setItem(WISH_KEY, JSON.stringify(wishlist)); }catch(e){}
+  scheduleSyncPush();
+}
 function wishCount(){ return Object.keys(wishlist).length; }
 
 /* =========================================================
@@ -1474,6 +1578,7 @@ var profile = (function(){
 saveProfile();
 function saveProfile(){
   try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+  scheduleSyncPush();
 }
 function shipAddress(){
   return profile.ship === 'paradiso' ? profile.paradiso : profile.miami;
@@ -1506,7 +1611,10 @@ var orderSelection = (function(){
   try{ var o = JSON.parse(localStorage.getItem(ORDERSEL_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; }
   catch(e){ return {}; }
 })();
-function saveOrderSelection(){ try{ localStorage.setItem(ORDERSEL_KEY, JSON.stringify(orderSelection)); }catch(e){} }
+function saveOrderSelection(){
+  try{ localStorage.setItem(ORDERSEL_KEY, JSON.stringify(orderSelection)); }catch(e){}
+  scheduleSyncPush();
+}
 function isSelectedForOrder(ref){ return !!orderSelection[ref]; }
 function toggleOrderSelection(ref){
   if(orderSelection[ref]) delete orderSelection[ref];
@@ -2308,6 +2416,8 @@ function closeSheet(){
 
 /* ---------- init ---------- */
 async function init(){
+  await pullSync(false);
+
   var statusItems = [];
   var res = null;
 
@@ -2537,6 +2647,30 @@ populateBoutiquePicker();
     loadStoresDirectory(p);
   };
 })();
+
+(function(){
+  var input = document.getElementById('syncCodeInput');
+  input.value = syncCode;
+  updateSyncStatus(syncCode ? 'ok' : null);
+
+  document.getElementById('syncConnect').onclick = async function(){
+    var v = input.value.trim();
+    if(!v){ document.getElementById('syncStatus').textContent = t('syncNeedCode'); return; }
+    syncCode = v;
+    try{ localStorage.setItem(SYNC_KEY, syncCode); }catch(e){}
+    updateSyncStatus('busy');
+    var got = await pullSync(true);
+    await pushSync();
+    if(got){ renderGrid(); updateWishHeader(); }
+  };
+  document.getElementById('syncPullNow').onclick = async function(){
+    if(!syncCode){ document.getElementById('syncStatus').textContent = t('syncNeedCode'); return; }
+    updateSyncStatus('busy');
+    var got = await pullSync(true);
+    if(got){ renderGrid(); updateWishHeader(); }
+  };
+})();
+
 if(liveStores.length){
   document.getElementById('suppLookupMsg').textContent = liveStores.length+' '+t('boutiquesLoaded');
 } else {
