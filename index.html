@@ -1264,7 +1264,7 @@ async function scanPageForImages(pageUrl, item){
    attributo Vue :store="{...}" (schema Yext). Si legge il
    sitemap per gli slug e si estrae nome+indirizzo da ognuno.
    ========================================================= */
-var STORES_KEY = 'apwish_stores_v2';
+var STORES_KEY = 'apwish_stores_v3';
 var STORES_TTL = 1000*60*60*24*14; // 14 giorni
 
 var COUNTRY_NAMES = {
@@ -1327,7 +1327,11 @@ async function fetchStoreData(slug){
     var line1 = decodeHtmlEntities(m[4]);
     var postal = decodeHtmlEntities(m[6]);
     var country = countryName(cc);
-    var addr = line1 + (postal ? ', ' + postal : '') + ' ' + city + (country ? ', ' + country : '');
+    var addrLines = [line1];
+    var cityLine = (postal ? postal + ' ' : '') + city;
+    if(cityLine.trim()) addrLines.push(cityLine.trim());
+    if(country) addrLines.push(country);
+    var addr = addrLines.join('\n');
     return {slug:slug, name:name, city:city, countryCode:cc, country:country, addr:addr.trim()};
   }catch(e){ return null; }
 }
