@@ -1098,9 +1098,9 @@ async function detectPriceEngine(sampleRefs){
 
 function fmtPrice(p, loc){
   try{
-    return new Intl.NumberFormat(loc.fmt, {maximumFractionDigits:0}).format(p.amount);
+    return new Intl.NumberFormat(loc.fmt, {minimumFractionDigits:2, maximumFractionDigits:2}).format(p.amount);
   }catch(e){
-    return String(Math.round(p.amount));
+    return p.amount.toFixed(2);
   }
 }
 
@@ -2114,8 +2114,8 @@ async function getRates(force){
 }
 
 function nfmt(n, loc){
-  try{ return new Intl.NumberFormat(loc||'de-CH', {maximumFractionDigits:0}).format(Math.round(n)); }
-  catch(e){ return String(Math.round(n)); }
+  try{ return new Intl.NumberFormat(loc||'de-CH', {minimumFractionDigits:2, maximumFractionDigits:2}).format(n); }
+  catch(e){ return Number(n).toFixed(2); }
 }
 
 function setStatus(itemsArr){
