@@ -2465,7 +2465,7 @@ async function openOrderSheet(){
     document.getElementById('ordStateTaxRow').style.display = 'flex';
     if(selectedUSTax.localRate > 0){
       var countyPct = (selectedUSTax.localRate*100).toFixed(3).replace(/\.?0+$/,'');
-      var capNote = selectedUSTax.cap != null ? ' on first $'+nfmt(selectedUSTax.cap,'en-US')+'.00' : '';
+      var capNote = selectedUSTax.cap != null ? ' on first $'+nfmt(selectedUSTax.cap,'en-US') : '';
       document.getElementById('ordCountyTaxK').textContent = 'County surtax (' + countyPct + '%' + capNote + ')';
       document.getElementById('ordCountyTax').textContent = '+ ' + wishLoc + ' ' + nfmt(countyTaxTotal, loc.fmt);
       document.getElementById('ordCountyTaxRow').style.display = 'flex';
