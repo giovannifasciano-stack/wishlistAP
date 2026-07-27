@@ -1326,6 +1326,37 @@ async function scanPageForImages(pageUrl, item){
 var STORES_KEY = 'apwish_stores_v3';
 var STORES_TTL = 1000*60*60*24*14; // 14 giorni
 
+/* =========================================================
+   SALES TAX USA — solo quando la boutique venditrice è
+   negli Stati Uniti e la valuta dell'ordine è USD.
+   Aliquote verificate (2026), per contea della boutique AP.
+   La Florida applica la surtax di contea solo sui primi
+   $5'000 di ogni singolo articolo (regola statale reale).
+   ========================================================= */
+var US_SALES_TAX = {
+  'miami-bal-harbour': {label:'Miami-Dade County, FL',            stateRate:0.06,   localRate:0.01,   cap:5000},
+  'ap-house-miami':    {label:'Miami-Dade County, FL',            stateRate:0.06,   localRate:0.01,   cap:5000},
+  'ap-house-nyc':      {label:'New York County (Manhattan), NY',  stateRate:0.04,   localRate:0.04875,cap:null},
+  'beverly-hills':     {label:'Los Angeles County (90210), CA',   stateRate:0.06,   localRate:0.045,  cap:null},
+  'las-vegas':         {label:'Clark County, NV',                 stateRate:0.08375,localRate:0,      cap:null},
+  'dallas1':           {label:'Dallas County (Highland Park), TX',stateRate:0.0825, localRate:0,      cap:null},
+  'boston1':           {label:'Suffolk County, MA',                stateRate:0.0625, localRate:0,      cap:null},
+  'ap-house-atlanta':  {label:'Fulton County, GA',                 stateRate:0.089,  localRate:0,      cap:null}
+};
+var selectedUSTax = null; // impostato quando la boutique scelta è in US_SALES_TAX
+
+function usTaxRateLabel(cfg){
+  return ((cfg.stateRate+cfg.localRate)*100).toFixed(3).replace(/\.?0+$/,'') + '%';
+}
+function usTaxForItem(priceUSD, cfg){
+  if(!cfg) return 0;
+  if(cfg.cap != null){
+    var localBase = Math.min(priceUSD, cfg.cap);
+    return priceUSD*cfg.stateRate + localBase*cfg.localRate;
+  }
+  return priceUSD*(cfg.stateRate+cfg.localRate);
+}
+
 var COUNTRY_NAMES = {
   CH:'Switzerland', US:'United States', IT:'Italy', FR:'France', GB:'United Kingdom',
   MC:'Monaco', DE:'Germany', ES:'Spain', PT:'Portugal', AT:'Austria', NL:'Netherlands',
@@ -2348,6 +2379,7 @@ async function openOrderSheet(){
 
   html += '<div class="ordtotals">'
         + '<div class="orow"><span>'+t('subtotal')+'</span><span class="v" id="ordSub">…</span></div>'
+        + '<div class="orow" id="ordUSTaxRow" style="display:none"><span id="ordUSTaxK">Sales tax</span><span class="v" id="ordUSTax">…</span></div>'
         + '<div class="orow big"><span>'+t('total')+'</span><span class="v gold" id="ordTot">…</span></div>'
         + '<div class="orow" id="ordTaxRow" style="display:none;font-size:10px"><span id="ordTaxK">'+t('netDetax')+'</span><span class="v" id="ordTax">…</span></div>'
         + '</div>';
@@ -2386,6 +2418,8 @@ async function openOrderSheet(){
 
   await priceReady;
   var sub = 0;
+  var usTaxTotal = 0;
+  var applyUSTax = (wishLoc === 'USD' && selectedUSTax);
   for(var i=0;i<wished.length;i++){
     var it = wished[i];
     var entry = priceCache[it.ref];
@@ -2397,10 +2431,19 @@ async function openOrderSheet(){
     if(row){
       row.textContent = p ? (wishLoc+' '+nfmt(p.amount, loc.fmt)) : t('onRequest');
     }
-    if(p) sub += p.amount;
+    if(p){
+      sub += p.amount;
+      if(applyUSTax) usTaxTotal += usTaxForItem(p.amount, selectedUSTax);
+    }
   }
 
-  var total = sub;   // il totale d'ordine è sempre il prezzo ufficiale pieno
+  var total = sub;
+  if(applyUSTax && usTaxTotal > 0){
+    total = sub + usTaxTotal;
+    document.getElementById('ordUSTaxK').textContent = 'Sales tax (' + selectedUSTax.label + ' \u00b7 ' + usTaxRateLabel(selectedUSTax) + ')';
+    document.getElementById('ordUSTax').textContent = wishLoc + ' ' + nfmt(usTaxTotal, loc.fmt);
+    document.getElementById('ordUSTaxRow').style.display = 'flex';
+  }
   var net = sub / (1 + taxRate);
 
   if(showDetax){
@@ -2714,12 +2757,14 @@ document.getElementById('suppPick').addEventListener('change', function(e){
     nameEl.focus();
     msg.className = '';
     msg.textContent = t('typeManually');
+    selectedUSTax = null;
     return;
   }
   var hit = liveStores[Number(e.target.value)];
   if(!hit) return;
   nameEl.value = hit.name;
   addrEl.value = hit.addr;
+  selectedUSTax = US_SALES_TAX[hit.slug] || null;
   msg.className = 'ok';
   msg.innerHTML = t('officialBoutique')+' <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">'+t('verifyGoogle')+'</a>';
 });
