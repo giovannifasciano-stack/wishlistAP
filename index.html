@@ -729,7 +729,7 @@ footer b{color:var(--oro);font-weight:500}
    viste: core-collection (attuale) · legacy · special
    ========================================================= */
 var DEFAULT_PROXY = 'https://watch-proxy.owscan.workers.dev';
-var CACHE_KEY = 'apvet_catalogo_v4';
+var CACHE_KEY = 'apvet_catalogo_v5';
 var CACHE_TTL = 1000*60*60*24; // 24h
 
 var proxyBase = (function(){
@@ -770,6 +770,10 @@ function timeoutFetch(url, ms){
 /* ---------- caricamento feed ---------- */
 function normalizeImg(u){
   if(!u) return '';
+  if(u.indexOf('/content/dam/') === 0){
+    // formato AEM legacy: percorso relativo, va risolto sul dominio AP e non porta i parametri Scene7
+    return 'https://www.audemarspiguet.com' + u.replace(/\?.*$/,'');
+  }
   return u.replace(/\?.*$/,'') + '?size=560,0&fmt=avif-alpha&dpr=off';
 }
 
@@ -1183,7 +1187,7 @@ var priceObserver = ('IntersectionObserver' in window) ? new IntersectionObserve
    FALLBACK IMMAGINI: foto dalla pagina prodotto via proxy
    (il feed a volte contiene un watch-placeholder)
    ========================================================= */
-var IMG_KEY = 'apvet_img_v6';
+var IMG_KEY = 'apvet_img_v7';
 var imgMap = (function(){
   try{
     var o = JSON.parse(localStorage.getItem(IMG_KEY) || '{}');
@@ -1281,11 +1285,15 @@ async function scanPageForImages(pageUrl, item){
 
     var BAD = /logo|icon|150_YEARS|takeover|flag|placeholder|essential|chronicles|musee|fondation|banner|lifestyle|shoot|hero|header|cover|campaign|ambiance|mood|editorial|_ls_|-ls-|\d{3,4}x\d{3,4}/i;
     var re = /https:\/\/dynamicmedia\.audemarspiguet\.com\/is\/image\/audemarspiguet\/[A-Za-z0-9_\-%.]+/g;
+    var reDam = /\/content\/dam\/ap\/com\/products\/watches\/[A-Za-z0-9]+\/importer\/standup\.[a-z0-9.]+\.png(?:\.transform\.[a-z0-9]+\.png)?/gi;
 
     // tutte le occorrenze con la loro posizione nel documento
     var found = [], m;
     while((m = re.exec(html)) !== null){
-      if(!BAD.test(m[0])) found.push({url:m[0], idx:m.index});
+      if(!BAD.test(m[0])) found.push({url:m[0], idx:m.index, dam:false});
+    }
+    while((m = reDam.exec(html)) !== null){
+      found.push({url:'https://www.audemarspiguet.com'+m[0], idx:m.index, dam:true});
     }
     if(!found.length) return [];
 
@@ -1302,6 +1310,7 @@ async function scanPageForImages(pageUrl, item){
       var d = Math.abs(f.idx - anchor);
       // bonus agli asset prodotto classici e a quelli che citano la referenza
       if(/\/(watch|standup)-\d+/i.test(f.url)) d -= 20000;
+      if(f.dam) d -= 20000; // il pattern DAM è già specifico del prodotto, non serve altro filtro
       if(f.url.indexOf(refStem) !== -1) d -= 40000;
       f.score = d;
     });
@@ -1312,7 +1321,7 @@ async function scanPageForImages(pageUrl, item){
       var clean = found[i].url.replace(/\?.*$/,'');
       if(seen[clean]) continue;
       seen[clean] = 1;
-      list.push(clean + '?size=560,0&fmt=avif-alpha&dpr=off');
+      list.push(found[i].dam ? clean : (clean + '?size=560,0&fmt=avif-alpha&dpr=off'));
     }
     return list;
   }catch(e){
