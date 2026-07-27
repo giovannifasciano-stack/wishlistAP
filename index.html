@@ -577,6 +577,10 @@ footer b{color:var(--oro);font-weight:500}
           <label data-i18n="buyingFrom">Buying from</label>
           <div class="loc-pick" id="locPick"></div>
         </div>
+        <div class="wb-field-inline">
+          <label data-i18n="deliveryDate">Delivery date</label>
+          <input id="wbDeliveryDate" type="date">
+        </div>
       </div>
       <div class="wb-section-row" style="margin-top:12px">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--acciaio-soft)">
@@ -892,6 +896,8 @@ var I18N = {
   secTax:{en:'Tax', it:'Tasse'},
   secParties:{en:'Parties', it:'Parti'},
   orderNo:{en:'Order no.', it:'N. ordine'},
+  deliveryDate:{en:'Delivery date', it:'Data di consegna'},
+  delivery:{en:'Delivery', it:'Consegna'},
   buyingFrom:{en:'Buying from', it:'Acquisto in'},
   payEnable:{en:'Include payment details', it:'Includi dettagli di pagamento'},
   payMethod:{en:'Payment method', it:'Metodo di pagamento'},
@@ -2283,13 +2289,16 @@ async function openOrderSheet(){
   var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
   printFilenameBase = 'Order_' + orderNo.replace(/[^A-Za-z0-9-]/g,'');
 
+  var deliveryVal = document.getElementById('wbDeliveryDate').value;
+  var deliveryLabel = deliveryVal ? new Date(deliveryVal+'T00:00:00').toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'}) : '';
+
   var html = '';
   html += '<div class="ordhead">';
   html += '<div class="ordhead-brand"><img src="'+AP_LOGO_DARK+'" alt="Audemars Piguet" onerror="this.outerHTML=\'<div class=&quot;hfallback&quot;>AUDEMARS PIGUET</div>\'"></div>';
   html += '<div class="ordhead-meta">'
         + '<div class="ordh-label">'+t('orderConfirmation')+'</div>'
         + '<div class="ordh-sub"><input id="ordNoInput" value="'+escapeHtml(orderNo)+'"></div>'
-        + '<div class="ordh-date">'+today+'</div>'
+        + '<div class="ordh-date">'+today+(deliveryLabel ? ' &middot; '+t('delivery')+': '+deliveryLabel : '')+'</div>'
         + '</div>';
   html += '</div>';
 
