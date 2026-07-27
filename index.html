@@ -1966,6 +1966,7 @@ function renderGrid(){
       quickSel.appendChild(ordBtn);
       h0.appendChild(quickSel);
       content.appendChild(h0);
+      content.appendChild(document.getElementById('wishBar'));
       var rule0 = document.createElement('div');
       rule0.className = 'famRule';
       content.appendChild(rule0);
@@ -1974,7 +1975,6 @@ function renderGrid(){
       filtered.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
       filtered.forEach(function(it){ grid0.appendChild(cardFor(it)); });
       content.appendChild(grid0);
-      content.appendChild(document.getElementById('wishBar'));
     }
     return;
   }
