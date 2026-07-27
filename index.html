@@ -460,6 +460,7 @@ footer b{color:var(--oro);font-weight:500}
   padding:6px 13px;font-size:11px;letter-spacing:.06em;display:flex;align-items:center;gap:6px;
 }
 .loc-pick button.on{border-color:var(--oro);color:var(--oro)}
+.loc-pick button:disabled{opacity:.3;cursor:not-allowed}
 #wishBar .wb-tax{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--acciaio-soft)}
 #wishBar select, #wishBar input[type=number], #wishBar input[type=text], #wishBar input[type=date], #wishBar #wbOrderNo{
   background:var(--carbone);border:1px solid var(--linea);border-radius:2px;color:var(--acciaio);
@@ -947,6 +948,7 @@ var I18N = {
   syncOk:{en:'Synced', it:'Sincronizzato'},
   syncWarn:{en:'Sync unavailable — check connection', it:'Sincronizzazione non riuscita — controlla la connessione'},
   syncNeedCode:{en:'Enter a sync code first', it:'Inserisci prima un codice'},
+  usBoutiqueUsdOnly:{en:'US boutique selected — currency locked to USD', it:'Boutique USA selezionata — valuta bloccata su USD'},
   specifications:{en:'Specifications', it:'Specifiche'},
   officialPrices:{en:'Official retail prices', it:'Prezzi ufficiali al pubblico'},
   collection:{en:'Collection', it:'Collezione'},
@@ -1687,15 +1689,22 @@ function updateWishHeader(){
   }
 }
 
+var lockCurrencyToUSD = false;
+
 function renderLocPick(){
   var box = document.getElementById('locPick');
   if(!box) return;
   box.innerHTML = '';
   PRICE_LOCALES.forEach(function(loc){
     var b = document.createElement('button');
+    var disabled = lockCurrencyToUSD && loc.label !== 'USD';
     b.className = (wishLoc === loc.label) ? 'on' : '';
+    if(disabled) b.className += ' disabled';
     b.innerHTML = loc.flag + ' ' + loc.label;
+    b.disabled = disabled;
+    b.title = disabled ? t('usBoutiqueUsdOnly') : '';
     b.onclick = function(){
+      if(disabled) return;
       wishLoc = loc.label;
       try{ localStorage.setItem('apwish_loc', wishLoc); }catch(e){}
       var rateEl = document.getElementById('wbTaxRate');
@@ -2761,6 +2770,8 @@ document.getElementById('suppPick').addEventListener('change', function(e){
     msg.className = '';
     msg.textContent = t('typeManually');
     selectedUSTax = null;
+    lockCurrencyToUSD = false;
+    renderLocPick();
     return;
   }
   var hit = liveStores[Number(e.target.value)];
@@ -2768,6 +2779,12 @@ document.getElementById('suppPick').addEventListener('change', function(e){
   nameEl.value = hit.name;
   addrEl.value = hit.addr;
   selectedUSTax = US_SALES_TAX[hit.slug] || null;
+  lockCurrencyToUSD = (hit.countryCode === 'US');
+  if(lockCurrencyToUSD && wishLoc !== 'USD'){
+    wishLoc = 'USD';
+    try{ localStorage.setItem('apwish_loc', wishLoc); }catch(e){}
+  }
+  renderLocPick();
   msg.className = 'ok';
   msg.innerHTML = t('officialBoutique')+' <a href="'+googleSearchUrl(hit.name)+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">'+t('verifyGoogle')+'</a>';
 });
