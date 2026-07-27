@@ -577,9 +577,17 @@ footer b{color:var(--oro);font-weight:500}
           <label data-i18n="buyingFrom">Buying from</label>
           <div class="loc-pick" id="locPick"></div>
         </div>
+      </div>
+      <div class="wb-section-row" style="margin-top:12px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--acciaio-soft)">
+          <input type="checkbox" id="wbDeliveryEnable" style="width:auto">
+          <span data-i18n="deliveryEnable">Include delivery date</span>
+        </label>
+      </div>
+      <div class="wb-section-row" id="wbDeliveryFields" style="display:none;margin-top:10px">
         <div class="wb-field-inline">
           <label data-i18n="deliveryDate">Delivery date</label>
-          <input id="wbDeliveryDate" type="date">
+          <input id="wbDeliveryDate" type="date" disabled>
         </div>
       </div>
       <div class="wb-section-row" style="margin-top:12px">
@@ -897,6 +905,7 @@ var I18N = {
   secParties:{en:'Parties', it:'Parti'},
   orderNo:{en:'Order no.', it:'N. ordine'},
   deliveryDate:{en:'Delivery date', it:'Data di consegna'},
+  deliveryEnable:{en:'Include delivery date', it:'Includi data di consegna'},
   delivery:{en:'Delivery', it:'Consegna'},
   buyingFrom:{en:'Buying from', it:'Acquisto in'},
   payEnable:{en:'Include payment details', it:'Includi dettagli di pagamento'},
@@ -2289,7 +2298,8 @@ async function openOrderSheet(){
   var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
   printFilenameBase = 'Order_' + orderNo.replace(/[^A-Za-z0-9-]/g,'');
 
-  var deliveryVal = document.getElementById('wbDeliveryDate').value;
+  var deliveryEnabled = document.getElementById('wbDeliveryEnable').checked;
+  var deliveryVal = deliveryEnabled ? document.getElementById('wbDeliveryDate').value : '';
   var deliveryLabel = deliveryVal ? new Date(deliveryVal+'T00:00:00').toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'}) : '';
 
   var html = '';
@@ -2603,6 +2613,12 @@ document.getElementById('wbPayEnable').addEventListener('change', function(e){
   var dateEl = document.getElementById('wbPayDate');
   dateEl.disabled = !e.target.checked;
   if(!e.target.checked) dateEl.value = '';
+});
+document.getElementById('wbDeliveryEnable').addEventListener('change', function(e){
+  document.getElementById('wbDeliveryFields').style.display = e.target.checked ? 'flex' : 'none';
+  var dEl = document.getElementById('wbDeliveryDate');
+  dEl.disabled = !e.target.checked;
+  if(!e.target.checked) dEl.value = '';
 });
 
 /* --- profilo venditore (Settings) --- */
