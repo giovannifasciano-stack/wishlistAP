@@ -2391,7 +2391,8 @@ async function openOrderSheet(){
 
   html += '<div class="ordtotals">'
         + '<div class="orow"><span>'+t('subtotal')+'</span><span class="v" id="ordSub">…</span></div>'
-        + '<div class="orow" id="ordUSTaxRow" style="display:none"><span id="ordUSTaxK">Sales tax</span><span class="v" id="ordUSTax">…</span></div>'
+        + '<div class="orow" id="ordStateTaxRow" style="display:none"><span id="ordStateTaxK">State tax</span><span class="v" id="ordStateTax">…</span></div>'
+        + '<div class="orow" id="ordCountyTaxRow" style="display:none"><span id="ordCountyTaxK">County surtax</span><span class="v" id="ordCountyTax">…</span></div>'
         + '<div class="orow big"><span>'+t('total')+'</span><span class="v gold" id="ordTot">…</span></div>'
         + '<div class="orow" id="ordTaxRow" style="display:none;font-size:10px"><span id="ordTaxK">'+t('netDetax')+'</span><span class="v" id="ordTax">…</span></div>'
         + '</div>';
@@ -2430,7 +2431,8 @@ async function openOrderSheet(){
 
   await priceReady;
   var sub = 0;
-  var usTaxTotal = 0;
+  var stateTaxTotal = 0;
+  var countyTaxTotal = 0;
   var applyUSTax = (wishLoc === 'USD' && selectedUSTax);
   for(var i=0;i<wished.length;i++){
     var it = wished[i];
@@ -2445,16 +2447,27 @@ async function openOrderSheet(){
     }
     if(p){
       sub += p.amount;
-      if(applyUSTax) usTaxTotal += usTaxForItem(p.amount, selectedUSTax);
+      if(applyUSTax){
+        stateTaxTotal += p.amount * selectedUSTax.stateRate;
+        var countyBase = (selectedUSTax.cap != null) ? Math.min(p.amount, selectedUSTax.cap) : p.amount;
+        countyTaxTotal += countyBase * selectedUSTax.localRate;
+      }
     }
   }
 
   var total = sub;
-  if(applyUSTax && usTaxTotal > 0){
-    total = sub + usTaxTotal;
-    document.getElementById('ordUSTaxK').textContent = 'Sales tax (' + selectedUSTax.label + ' \u00b7 ' + usTaxRateLabel(selectedUSTax) + ')';
-    document.getElementById('ordUSTax').textContent = wishLoc + ' ' + nfmt(usTaxTotal, loc.fmt);
-    document.getElementById('ordUSTaxRow').style.display = 'flex';
+  if(applyUSTax){
+    total = sub + stateTaxTotal + countyTaxTotal;
+    document.getElementById('ordStateTaxK').textContent = 'State tax (' + (selectedUSTax.stateRate*100).toFixed(2).replace(/\.?0+$/,'') + '%)';
+    document.getElementById('ordStateTax').textContent = '+ ' + wishLoc + ' ' + nfmt(stateTaxTotal, loc.fmt);
+    document.getElementById('ordStateTaxRow').style.display = 'flex';
+    if(selectedUSTax.localRate > 0){
+      var countyPct = (selectedUSTax.localRate*100).toFixed(3).replace(/\.?0+$/,'');
+      var capNote = selectedUSTax.cap != null ? ' on first $'+nfmt(selectedUSTax.cap,'en-US')+'.00' : '';
+      document.getElementById('ordCountyTaxK').textContent = 'County surtax (' + countyPct + '%' + capNote + ')';
+      document.getElementById('ordCountyTax').textContent = '+ ' + wishLoc + ' ' + nfmt(countyTaxTotal, loc.fmt);
+      document.getElementById('ordCountyTaxRow').style.display = 'flex';
+    }
   }
   var net = sub / (1 + taxRate);
 
