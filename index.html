@@ -1000,6 +1000,7 @@ function t(key){
   return e[lang] || e.en;
 }
 function saveLang(){ try{ localStorage.setItem('apwish_lang', lang); }catch(e){} }
+function dateLocale(){ return lang === 'it' ? 'it-IT' : 'en-GB'; }
 
 var printFilenameBase = 'AP';
 var originalTitle = document.title;
@@ -2105,7 +2106,7 @@ function escapeHtml(s){
 function openSheet(it, imgEl, withTax){
   var body = document.getElementById('sheetBody');
   var src = hiRes((imgEl && imgEl.src) || imgMap[it.ref] || it.img || '');
-  var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+  var today = new Date().toLocaleDateString(dateLocale(), {day:'2-digit', month:'long', year:'numeric'});
   printFilenameBase = null;
 
   var specs = [
@@ -2257,7 +2258,7 @@ async function buildTaxSection(entry){
   h += '<div class="taxnote">';
   h += t('taxNote1');
   if(fx){
-    var fxTime = new Date(fx.ts).toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+    var fxTime = new Date(fx.ts).toLocaleTimeString(dateLocale(), {hour:'2-digit', minute:'2-digit'});
     h += t('taxRates')+' '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD · '
        + escapeHtml(fx.source || 'market') + ', '+t('retrieved')+' ' + fxTime + '. ';
   }
@@ -2294,13 +2295,13 @@ async function openOrderSheet(){
   PRICE_LOCALES.forEach(function(l){ if(l.label === wishLoc) loc = l; });
   if(!loc) loc = PRICE_LOCALES[0];
 
-  var today = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+  var today = new Date().toLocaleDateString(dateLocale(), {day:'2-digit', month:'long', year:'numeric'});
   var orderNo = (document.getElementById('wbOrderNo').value || '').trim() || makeOrderNo();
   printFilenameBase = 'Order_' + orderNo.replace(/[^A-Za-z0-9-]/g,'');
 
   var deliveryEnabled = document.getElementById('wbDeliveryEnable').checked;
   var deliveryVal = deliveryEnabled ? document.getElementById('wbDeliveryDate').value : '';
-  var deliveryLabel = deliveryVal ? new Date(deliveryVal+'T00:00:00').toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'}) : '';
+  var deliveryLabel = deliveryVal ? new Date(deliveryVal+'T00:00:00').toLocaleDateString(dateLocale(), {day:'2-digit', month:'long', year:'numeric'}) : '';
 
   var html = '';
   html += '<div class="ordhead">';
@@ -2356,7 +2357,7 @@ async function openOrderSheet(){
     var payMethodSel = document.getElementById('wbPayMethod');
     var payMethodLabel = payMethodSel.options[payMethodSel.selectedIndex].textContent;
     var payDateVal = document.getElementById('wbPayDate').value;
-    var payDateLabel = payDateVal ? new Date(payDateVal+'T00:00:00').toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'}) : '—';
+    var payDateLabel = payDateVal ? new Date(payDateVal+'T00:00:00').toLocaleDateString(dateLocale(), {day:'2-digit', month:'long', year:'numeric'}) : '—';
     html += '<div class="ordpayment"><span class="ordpayment-k">'+t('payment')+'</span> '
           + escapeHtml(payMethodLabel) + (payDateVal ? ' &middot; '+t('due')+' ' + payDateLabel : '')
           + '</div>';
@@ -2471,7 +2472,7 @@ async function init(){
   statusItems.push({tone:'warn', html:'<span id="priceStatus">Prices: detecting official feed…</span>'});
   setStatus(statusItems);
   var ts = document.getElementById('tsLabel');
-  if(ts) ts.textContent = new Date(res.ts).toLocaleString('en-GB');
+  if(ts) ts.textContent = new Date(res.ts).toLocaleString(dateLocale());
 
   buildImgIndex();
   renderViews();
