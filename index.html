@@ -223,7 +223,13 @@ body.wishlist-mode .badge{top:38px}
 #panel button.ghost{background:none;border-color:var(--linea);color:var(--acciaio-soft)}
 #panel button.ghost:hover{color:var(--oro);border-color:var(--oro)}
 #testOut{margin-top:12px;font-size:11px;letter-spacing:.03em;color:var(--acciaio-soft);line-height:1.6;white-space:pre-wrap;word-break:break-all}
-#closePanel{position:absolute;top:14px;right:14px;background:none!important;border:none!important;color:var(--acciaio-soft);font-size:18px;padding:4px 8px}
+#closePanel{
+  position:fixed;top:14px;right:14px;z-index:90;display:none;
+  background:var(--carbone)!important;border:1px solid var(--linea)!important;
+  color:var(--acciaio-soft);font-size:16px;padding:6px 10px;border-radius:2px;
+}
+#panel.open #closePanel{display:block}
+@supports(padding:max(0px)){#closePanel{right:max(14px, env(safe-area-inset-right));top:max(14px, env(safe-area-inset-top))}}
 
 footer{padding:40px 20px 30px;text-align:center;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--acciaio-soft)}
 footer b{color:var(--oro);font-weight:500}
