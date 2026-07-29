@@ -435,6 +435,17 @@ footer b{color:var(--oro);font-weight:500}
 .selbtn:hover{background:var(--ordine-soft)}
 .selbtn.on{background:var(--ordine);color:#0a0a0b}
 
+.octa-frame{position:relative}
+.ownbtn{
+  position:absolute;bottom:8px;right:8px;z-index:2;
+  width:26px;height:26px;line-height:1;
+  background:rgba(19,20,23,.85);border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio-soft);font-size:13px;display:grid;place-items:center;padding:0;
+  transition:all .15s;filter:grayscale(1);opacity:.7;
+}
+.ownbtn:hover{border-color:var(--ok);opacity:1}
+.ownbtn.on{border-color:var(--ok);background:rgba(95,174,125,.15);filter:none;opacity:1}
+
 .hdr-actions #wishToggle{
   position:relative;background:none;border:1px solid var(--linea);border-radius:2px;
   color:var(--acciaio-soft);padding:8px 12px;font-size:12px;letter-spacing:.06em;
@@ -963,6 +974,9 @@ var I18N = {
   syncWarn:{en:'Sync unavailable — check connection', it:'Sincronizzazione non riuscita — controlla la connessione'},
   syncNeedCode:{en:'Enter a sync code first', it:'Inserisci prima un codice'},
   usBoutiqueUsdOnly:{en:'Currency locked to the boutique\u2019s market', it:'Valuta bloccata sul mercato della boutique'},
+  markOwned:{en:'Mark as owned', it:'Segna come posseduto'},
+  unmarkOwned:{en:'Remove from Owned', it:'Rimuovi da Owned'},
+  owned:{en:'Owned', it:'Posseduti'},
   specifications:{en:'Specifications', it:'Specifiche'},
   officialPrices:{en:'Official retail prices', it:'Prezzi ufficiali al pubblico'},
   collection:{en:'Collection', it:'Collezione'},
@@ -1549,6 +1563,7 @@ async function pushSync(){
   var payload = JSON.stringify({
     wishlist: wishlist,
     orderSelection: orderSelection,
+    owned: owned,
     profile: profile,
     ts: syncTs
   });
@@ -1573,6 +1588,7 @@ async function pullSync(showBusy){
     if(data.ts > syncTs){
       wishlist = data.wishlist || {};
       orderSelection = data.orderSelection || {};
+      owned = data.owned || {};
       if(data.profile){
         profile.name = data.profile.name || profile.name;
         profile.miami = data.profile.miami || profile.miami;
@@ -1585,6 +1601,7 @@ async function pullSync(showBusy){
       try{ localStorage.setItem(SYNC_TS_KEY, String(syncTs)); }catch(e){}
       try{ localStorage.setItem(WISH_KEY, JSON.stringify(wishlist)); }catch(e){}
       try{ localStorage.setItem(ORDERSEL_KEY, JSON.stringify(orderSelection)); }catch(e){}
+      try{ localStorage.setItem(OWNED_KEY, JSON.stringify(owned)); }catch(e){}
       try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
       updateSyncStatus('ok');
       return true;
@@ -1697,6 +1714,26 @@ function selectedCount(){
   var n = 0;
   Object.keys(wishlist).forEach(function(ref){ if(orderSelection[ref]) n++; });
   return n;
+}
+
+/* =========================================================
+   OWNED — orologi già acquistati, spostati fuori dalla
+   sezione Wishlist attiva in una sezione separata.
+   ========================================================= */
+var OWNED_KEY = 'apwish_owned_v1';
+var owned = (function(){
+  try{ var o = JSON.parse(localStorage.getItem(OWNED_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; }
+  catch(e){ return {}; }
+})();
+function saveOwned(){
+  try{ localStorage.setItem(OWNED_KEY, JSON.stringify(owned)); }catch(e){}
+  scheduleSyncPush();
+}
+function isOwned(ref){ return !!owned[ref]; }
+function toggleOwned(ref){
+  if(owned[ref]) delete owned[ref];
+  else owned[ref] = true;
+  saveOwned();
 }
 
 function updateWishHeader(){
@@ -1935,6 +1972,20 @@ function cardFor(it){
     }
   })();
   card.appendChild(frame);
+
+  if(wishlistMode){
+    var ownb = document.createElement('button');
+    ownb.className = 'ownbtn' + (isOwned(it.ref) ? ' on' : '');
+    ownb.innerHTML = '\uD83D\uDCE6';
+    ownb.title = isOwned(it.ref) ? t('unmarkOwned') : t('markOwned');
+    ownb.setAttribute('aria-label', ownb.title);
+    ownb.onclick = function(e){
+      e.stopPropagation();
+      toggleOwned(it.ref);
+      renderGrid();
+    };
+    frame.appendChild(ownb);
+  }
   frame.setAttribute('role','button');
   frame.tabIndex = 0;
   frame.title = t('openSheetTip');
@@ -1995,7 +2046,10 @@ function renderGrid(){
   }
 
   if(wishlistMode){
-    if(filtered.length){
+    var notOwned = filtered.filter(function(it){ return !isOwned(it.ref); });
+    var ownedList = filtered.filter(function(it){ return isOwned(it.ref); });
+
+    if(notOwned.length){
       var h0 = document.createElement('div');
       h0.className = 'famTitle';
       h0.style.display = 'flex';
@@ -2003,7 +2057,7 @@ function renderGrid(){
       h0.style.justifyContent = 'space-between';
       h0.style.flexWrap = 'wrap';
       h0.style.gap = '10px';
-      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+filtered.length+' '+(filtered.length>1?t('watches'):t('watch1'))+' &middot; '+selectedCount()+' '+t('selectedCount')+'</small></span>';
+      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+notOwned.length+' '+(notOwned.length>1?t('watches'):t('watch1'))+' &middot; '+selectedCount()+' '+t('selectedCount')+'</small></span>';
 
       var quickSel = document.createElement('div');
       quickSel.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
@@ -2011,7 +2065,7 @@ function renderGrid(){
       selAllBtn.textContent = t('selectAll');
       selAllBtn.style.cssText = 'background:none;border:1px solid var(--ordine);color:var(--ordine);padding:6px 12px;font-size:10.5px;letter-spacing:.06em;border-radius:2px';
       selAllBtn.onclick = function(){
-        filtered.forEach(function(it){ orderSelection[it.ref] = true; });
+        notOwned.forEach(function(it){ orderSelection[it.ref] = true; });
         saveOrderSelection();
         renderGrid();
       };
@@ -2019,7 +2073,7 @@ function renderGrid(){
       selNoneBtn.textContent = t('selectNone');
       selNoneBtn.style.cssText = 'background:none;border:1px solid var(--linea);color:var(--acciaio-soft);padding:6px 12px;font-size:10.5px;letter-spacing:.06em;border-radius:2px';
       selNoneBtn.onclick = function(){
-        filtered.forEach(function(it){ delete orderSelection[it.ref]; });
+        notOwned.forEach(function(it){ delete orderSelection[it.ref]; });
         saveOrderSelection();
         renderGrid();
       };
@@ -2040,9 +2094,27 @@ function renderGrid(){
       content.appendChild(rule0);
       var grid0 = document.createElement('div');
       grid0.className = 'grid';
-      filtered.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
-      filtered.forEach(function(it){ grid0.appendChild(cardFor(it)); });
+      notOwned.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+      notOwned.forEach(function(it){ grid0.appendChild(cardFor(it)); });
       content.appendChild(grid0);
+    } else if(filtered.length){
+      // niente in wishlist attiva, ma serve comunque un posto per il pannello ordine se aperto
+      content.appendChild(document.getElementById('wishBar'));
+    }
+
+    if(ownedList.length){
+      var hOwned = document.createElement('div');
+      hOwned.className = 'famTitle';
+      hOwned.innerHTML = '<span>'+t('owned')+' <small>'+ownedList.length+' '+(ownedList.length>1?t('watches'):t('watch1'))+'</small></span>';
+      content.appendChild(hOwned);
+      var ruleOwned = document.createElement('div');
+      ruleOwned.className = 'famRule';
+      content.appendChild(ruleOwned);
+      var gridOwned = document.createElement('div');
+      gridOwned.className = 'grid';
+      ownedList.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+      ownedList.forEach(function(it){ gridOwned.appendChild(cardFor(it)); });
+      content.appendChild(gridOwned);
     }
     return;
   }
