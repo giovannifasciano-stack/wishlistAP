@@ -1013,6 +1013,8 @@ var I18N = {
   usBoutiqueUsdOnly:{en:'Currency locked to the boutique\u2019s market', it:'Valuta bloccata sul mercato della boutique'},
   markOwned:{en:'Mark as owned', it:'Segna come posseduto'},
   unmarkOwned:{en:'Remove from Owned', it:'Rimuovi da Owned'},
+  confirmMarkOwned:{en:'Mark this watch as owned? It will move to the Owned section.', it:'Segnare questo orologio come posseduto? Verr\u00e0 spostato nella sezione Owned.'},
+  confirmUnmarkOwned:{en:'Remove this watch from Owned? It will return to your Wishlist.', it:'Rimuovere questo orologio da Owned? Torner\u00e0 nella tua Wishlist.'},
   owned:{en:'Owned', it:'Posseduti'},
   specifications:{en:'Specifications', it:'Specifiche'},
   officialPrices:{en:'Official retail prices', it:'Prezzi ufficiali al pubblico'},
@@ -2038,6 +2040,9 @@ function cardFor(it){
     ownb.setAttribute('aria-label', ownb.title);
     ownb.onclick = function(e){
       e.stopPropagation();
+      var willBeOwned = !isOwned(it.ref);
+      var msg = willBeOwned ? t('confirmMarkOwned') : t('confirmUnmarkOwned');
+      if(!confirm(msg)) return;
       toggleOwned(it.ref);
       renderGrid();
     };
