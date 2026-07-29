@@ -2014,7 +2014,7 @@ function cardFor(it){
   })();
   card.appendChild(frame);
 
-  if(wishlistMode){
+  if(wishlistMode || ownedMode){
     var ownb = document.createElement('button');
     ownb.className = 'ownbtn' + (isOwned(it.ref) ? ' on' : '');
     ownb.innerHTML = (isOwned(it.ref) ? '\uD83D\uDCE6 ' + t('owned') : '\uD83D\uDCE6 ' + t('markOwned'));
@@ -2026,7 +2026,7 @@ function cardFor(it){
       renderGrid();
     };
     card.appendChild(ownb);
-  } else if(!ownedMode && isOwned(it.ref)){
+  } else if(isOwned(it.ref)){
     var ownedPill = document.createElement('div');
     ownedPill.className = 'ownedPill';
     ownedPill.textContent = '\uD83D\uDCE6 ' + t('owned');
