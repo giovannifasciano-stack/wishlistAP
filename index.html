@@ -437,14 +437,13 @@ footer b{color:var(--oro);font-weight:500}
 
 .octa-frame{position:relative}
 .ownbtn{
-  position:absolute;bottom:8px;right:8px;z-index:2;
-  width:26px;height:26px;line-height:1;
-  background:rgba(19,20,23,.85);border:1px solid var(--linea);border-radius:2px;
-  color:var(--acciaio-soft);font-size:13px;display:grid;place-items:center;padding:0;
-  transition:all .15s;filter:grayscale(1);opacity:.7;
+  width:100%;background:var(--nero);border:1px solid var(--linea);border-radius:20px;
+  color:var(--acciaio-soft);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 8px;display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .15s;
 }
-.ownbtn:hover{border-color:var(--ok);opacity:1}
-.ownbtn.on{border-color:var(--ok);background:rgba(95,174,125,.15);filter:none;opacity:1}
+.ownbtn:hover{border-color:var(--ok);color:var(--ok)}
+.ownbtn.on{border-color:var(--ok);background:rgba(95,174,125,.15);color:var(--ok)}
 
 .hdr-actions #wishToggle{
   position:relative;background:none;border:1px solid var(--linea);border-radius:2px;
@@ -1976,7 +1975,7 @@ function cardFor(it){
   if(wishlistMode){
     var ownb = document.createElement('button');
     ownb.className = 'ownbtn' + (isOwned(it.ref) ? ' on' : '');
-    ownb.innerHTML = '\uD83D\uDCE6';
+    ownb.innerHTML = (isOwned(it.ref) ? '\uD83D\uDCE6 ' + t('owned') : '\uD83D\uDCE6 ' + t('markOwned'));
     ownb.title = isOwned(it.ref) ? t('unmarkOwned') : t('markOwned');
     ownb.setAttribute('aria-label', ownb.title);
     ownb.onclick = function(e){
@@ -1984,7 +1983,7 @@ function cardFor(it){
       toggleOwned(it.ref);
       renderGrid();
     };
-    frame.appendChild(ownb);
+    card.appendChild(ownb);
   }
   frame.setAttribute('role','button');
   frame.tabIndex = 0;
