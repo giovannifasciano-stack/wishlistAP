@@ -445,6 +445,12 @@ footer b{color:var(--oro);font-weight:500}
 .ownbtn:hover{border-color:var(--ok);color:var(--ok)}
 .ownbtn.on{border-color:var(--ok);background:rgba(95,174,125,.15);color:var(--ok)}
 
+.ownedPill{
+  width:100%;background:rgba(95,174,125,.15);border:1px solid var(--ok);border-radius:20px;
+  color:var(--ok);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 8px;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+
 .hdr-actions #wishToggle{
   position:relative;background:none;border:1px solid var(--linea);border-radius:2px;
   color:var(--acciaio-soft);padding:8px 12px;font-size:12px;letter-spacing:.06em;
@@ -458,6 +464,20 @@ footer b{color:var(--oro);font-weight:500}
   font-size:9.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;
 }
 #wishToggle .wc:empty{display:none}
+
+.hdr-actions #ownedToggle{
+  position:relative;background:none;border:1px solid var(--linea);border-radius:2px;
+  color:var(--acciaio-soft);padding:8px 12px;font-size:12px;letter-spacing:.06em;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.hdr-actions #ownedToggle:hover{color:var(--ok);border-color:var(--ok)}
+.hdr-actions #ownedToggle.on{color:var(--ok);border-color:var(--ok)}
+.hdr-actions #ownedToggle:not(.on){color:var(--acciaio-soft);border-color:var(--linea)}
+#ownedToggle .wc{
+  background:var(--ok);color:#0a0a0b;border-radius:10px;min-width:16px;height:16px;
+  font-size:9.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;
+}
+#ownedToggle .wc:empty{display:none}
 
 #wishBar{
   display:none;flex-direction:column;gap:0;
@@ -578,6 +598,7 @@ footer b{color:var(--oro);font-weight:500}
     <div class="hdr-actions">
       <input id="search" type="search" placeholder="Search ref, model, material…" data-i18n-ph="searchPh" aria-label="Search">
       <button id="wishToggle" aria-label="Wishlist">♥ Wishlist <span class="wc" id="wishCount"></span></button>
+      <button id="ownedToggle" aria-label="Owned">📦 Owned <span class="wc" id="ownedCount"></span></button>
       <div class="lang-pick" id="langPick" aria-label="Language">
         <button data-lang="en">🇬🇧 EN</button>
         <button data-lang="it">🇮🇹 IT</button>
@@ -910,6 +931,7 @@ var I18N = {
   imageOnAP:{en:'Image on AP', it:'Immagine su AP'},
   noMatch:{en:'No references match your filters.', it:'Nessuna referenza corrisponde ai filtri.'},
   wishEmpty:{en:'Your wishlist is empty — tap the \u2665 on any watch to add it.', it:'La tua lista desideri \u00e8 vuota — tocca il \u2665 su un orologio per aggiungerlo.'},
+  ownedEmpty:{en:'Nothing marked as owned yet — use the \uD83D\uDCE6 button in Wishlist.', it:'Nessun pezzo segnato come posseduto — usa il pulsante \uD83D\uDCE6 nella Wishlist.'},
   wishlist:{en:'Wishlist', it:'Lista desideri'},
   includeInOrder:{en:'Include in this order', it:'Includi in questo ordine'},
   selectAll:{en:'Select all', it:'Seleziona tutti'},
@@ -1527,6 +1549,7 @@ var wishlist = (function(){
   catch(e){ return {}; }
 })();
 var wishlistMode = false;
+var ownedMode = false;
 var wishLoc = (function(){
   try{ return localStorage.getItem('apwish_loc') || 'CHF'; }catch(e){ return 'CHF'; }
 })();
@@ -1742,6 +1765,12 @@ function updateWishHeader(){
     wtBtn.classList.toggle('on', wishlistMode);
     wtBtn.innerHTML = t('wishToggle') + ' <span class="wc" id="wishCount">' + (n || '') + '</span>';
   }
+  var otBtn = document.getElementById('ownedToggle');
+  if(otBtn){
+    var oc = Object.keys(owned).length;
+    otBtn.classList.toggle('on', ownedMode);
+    otBtn.innerHTML = '\uD83D\uDCE6 ' + t('owned') + ' <span class="wc" id="ownedCount">' + (oc || '') + '</span>';
+  }
 }
 
 var lockedCurrency = null; // 'CHF' | 'EUR' | 'USD' | null (nessun blocco)
@@ -1787,11 +1816,22 @@ function ensureStoresLoaded(){
 
 function setWishlistMode(on){
   wishlistMode = on;
+  if(on) ownedMode = false;
   document.body.classList.toggle('wishlist-mode', on);
   if(!on){ orderPanelOpen = false; document.getElementById('wishBar').classList.remove('on'); }
   else{ ensureStoresLoaded(); }
   updateWishHeader();
   renderLocPick();
+  renderTabs();
+  renderGrid();
+}
+
+function setOwnedMode(on){
+  ownedMode = on;
+  if(on) wishlistMode = false;
+  document.body.classList.toggle('wishlist-mode', false);
+  if(wishlistMode === false){ orderPanelOpen = false; var wb = document.getElementById('wishBar'); if(wb) wb.classList.remove('on'); }
+  updateWishHeader();
   renderTabs();
   renderGrid();
 }
@@ -1808,8 +1848,10 @@ function toggleOrderPanel(){
 function visibleItems(){
   var q = query;
   return items.filter(function(it){
-    if(wishlistMode){
-      if(!isWished(it.ref)) return false;
+    if(ownedMode){
+      if(!isOwned(it.ref)) return false;
+    } else if(wishlistMode){
+      if(!isWished(it.ref) || isOwned(it.ref)) return false;
     } else {
       if(activeColl !== 'ALL' && it.coll !== activeColl) return false;
       var vOk = false;
@@ -1984,6 +2026,11 @@ function cardFor(it){
       renderGrid();
     };
     card.appendChild(ownb);
+  } else if(!ownedMode && isOwned(it.ref)){
+    var ownedPill = document.createElement('div');
+    ownedPill.className = 'ownedPill';
+    ownedPill.textContent = '\uD83D\uDCE6 ' + t('owned');
+    card.appendChild(ownedPill);
   }
   frame.setAttribute('role','button');
   frame.tabIndex = 0;
@@ -2038,17 +2085,34 @@ function renderGrid(){
   var filtered = visibleItems();
 
   document.getElementById('emptyMsg').style.display = filtered.length ? 'none' : 'block';
-  if(wishlistMode){
+  if(ownedMode){
+    document.getElementById('emptyMsg').textContent = t('ownedEmpty');
+  } else if(wishlistMode){
     document.getElementById('emptyMsg').textContent = t('wishEmpty');
   } else {
     document.getElementById('emptyMsg').textContent = t('noMatch');
   }
 
-  if(wishlistMode){
-    var notOwned = filtered.filter(function(it){ return !isOwned(it.ref); });
-    var ownedList = filtered.filter(function(it){ return isOwned(it.ref); });
+  if(ownedMode){
+    if(filtered.length){
+      var hOwned = document.createElement('div');
+      hOwned.className = 'famTitle';
+      hOwned.innerHTML = '<span>'+t('owned')+' <small>'+filtered.length+' '+(filtered.length>1?t('watches'):t('watch1'))+'</small></span>';
+      content.appendChild(hOwned);
+      var ruleOwned = document.createElement('div');
+      ruleOwned.className = 'famRule';
+      content.appendChild(ruleOwned);
+      var gridOwned = document.createElement('div');
+      gridOwned.className = 'grid';
+      filtered.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+      filtered.forEach(function(it){ gridOwned.appendChild(cardFor(it)); });
+      content.appendChild(gridOwned);
+    }
+    return;
+  }
 
-    if(notOwned.length){
+  if(wishlistMode){
+    if(filtered.length){
       var h0 = document.createElement('div');
       h0.className = 'famTitle';
       h0.style.display = 'flex';
@@ -2056,7 +2120,7 @@ function renderGrid(){
       h0.style.justifyContent = 'space-between';
       h0.style.flexWrap = 'wrap';
       h0.style.gap = '10px';
-      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+notOwned.length+' '+(notOwned.length>1?t('watches'):t('watch1'))+' &middot; '+selectedCount()+' '+t('selectedCount')+'</small></span>';
+      h0.innerHTML = '<span>'+t('wishlist')+' <small>'+filtered.length+' '+(filtered.length>1?t('watches'):t('watch1'))+' &middot; '+selectedCount()+' '+t('selectedCount')+'</small></span>';
 
       var quickSel = document.createElement('div');
       quickSel.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
@@ -2064,7 +2128,7 @@ function renderGrid(){
       selAllBtn.textContent = t('selectAll');
       selAllBtn.style.cssText = 'background:none;border:1px solid var(--ordine);color:var(--ordine);padding:6px 12px;font-size:10.5px;letter-spacing:.06em;border-radius:2px';
       selAllBtn.onclick = function(){
-        notOwned.forEach(function(it){ orderSelection[it.ref] = true; });
+        filtered.forEach(function(it){ orderSelection[it.ref] = true; });
         saveOrderSelection();
         renderGrid();
       };
@@ -2072,7 +2136,7 @@ function renderGrid(){
       selNoneBtn.textContent = t('selectNone');
       selNoneBtn.style.cssText = 'background:none;border:1px solid var(--linea);color:var(--acciaio-soft);padding:6px 12px;font-size:10.5px;letter-spacing:.06em;border-radius:2px';
       selNoneBtn.onclick = function(){
-        notOwned.forEach(function(it){ delete orderSelection[it.ref]; });
+        filtered.forEach(function(it){ delete orderSelection[it.ref]; });
         saveOrderSelection();
         renderGrid();
       };
@@ -2093,27 +2157,12 @@ function renderGrid(){
       content.appendChild(rule0);
       var grid0 = document.createElement('div');
       grid0.className = 'grid';
-      notOwned.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
-      notOwned.forEach(function(it){ grid0.appendChild(cardFor(it)); });
+      filtered.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
+      filtered.forEach(function(it){ grid0.appendChild(cardFor(it)); });
       content.appendChild(grid0);
-    } else if(filtered.length){
-      // niente in wishlist attiva, ma serve comunque un posto per il pannello ordine se aperto
+    } else {
+      // wishlist vuota ma serve comunque un posto per il pannello ordine se aperto
       content.appendChild(document.getElementById('wishBar'));
-    }
-
-    if(ownedList.length){
-      var hOwned = document.createElement('div');
-      hOwned.className = 'famTitle';
-      hOwned.innerHTML = '<span>'+t('owned')+' <small>'+ownedList.length+' '+(ownedList.length>1?t('watches'):t('watch1'))+'</small></span>';
-      content.appendChild(hOwned);
-      var ruleOwned = document.createElement('div');
-      ruleOwned.className = 'famRule';
-      content.appendChild(ruleOwned);
-      var gridOwned = document.createElement('div');
-      gridOwned.className = 'grid';
-      ownedList.sort(function(a,b){ return a.ref.localeCompare(b.ref); });
-      ownedList.forEach(function(it){ gridOwned.appendChild(cardFor(it)); });
-      content.appendChild(gridOwned);
     }
     return;
   }
@@ -2760,6 +2809,7 @@ document.querySelectorAll('#langPick button').forEach(function(b){
 applyLanguage();
 
 document.getElementById('wishToggle').onclick = function(){ setWishlistMode(!wishlistMode); };
+document.getElementById('ownedToggle').onclick = function(){ setOwnedMode(!ownedMode); };
 document.getElementById('wbClear').onclick = function(){
   if(!confirm('Clear the wishlist?')) return;
   wishlist = {};
