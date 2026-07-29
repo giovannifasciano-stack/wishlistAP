@@ -962,7 +962,7 @@ var I18N = {
   syncOk:{en:'Synced', it:'Sincronizzato'},
   syncWarn:{en:'Sync unavailable — check connection', it:'Sincronizzazione non riuscita — controlla la connessione'},
   syncNeedCode:{en:'Enter a sync code first', it:'Inserisci prima un codice'},
-  usBoutiqueUsdOnly:{en:'US boutique selected — currency locked to USD', it:'Boutique USA selezionata — valuta bloccata su USD'},
+  usBoutiqueUsdOnly:{en:'Currency locked to the boutique\u2019s market', it:'Valuta bloccata sul mercato della boutique'},
   specifications:{en:'Specifications', it:'Specifiche'},
   officialPrices:{en:'Official retail prices', it:'Prezzi ufficiali al pubblico'},
   collection:{en:'Collection', it:'Collezione'},
@@ -1708,7 +1708,13 @@ function updateWishHeader(){
   }
 }
 
-var lockCurrencyToUSD = false;
+var lockedCurrency = null; // 'CHF' | 'EUR' | 'USD' | null (nessun blocco)
+
+function currencyForCountry(cc){
+  if(cc === 'US') return 'USD';
+  if(cc === 'CH') return 'CHF';
+  return 'EUR'; // resto del mondo: usiamo il listino EUR come riferimento
+}
 
 function renderLocPick(){
   var box = document.getElementById('locPick');
@@ -1716,7 +1722,7 @@ function renderLocPick(){
   box.innerHTML = '';
   PRICE_LOCALES.forEach(function(loc){
     var b = document.createElement('button');
-    var disabled = lockCurrencyToUSD && loc.label !== 'USD';
+    var disabled = lockedCurrency && loc.label !== lockedCurrency;
     b.className = (wishLoc === loc.label) ? 'on' : '';
     if(disabled) b.className += ' disabled';
     b.innerHTML = loc.flag + ' ' + loc.label;
@@ -2802,7 +2808,7 @@ document.getElementById('suppPick').addEventListener('change', function(e){
     msg.className = '';
     msg.textContent = t('typeManually');
     selectedUSTax = null;
-    lockCurrencyToUSD = false;
+    lockedCurrency = null;
     renderLocPick();
     return;
   }
@@ -2811,9 +2817,9 @@ document.getElementById('suppPick').addEventListener('change', function(e){
   nameEl.value = hit.name;
   addrEl.value = hit.addr;
   selectedUSTax = US_SALES_TAX[hit.slug] || null;
-  lockCurrencyToUSD = (hit.countryCode === 'US');
-  if(lockCurrencyToUSD && wishLoc !== 'USD'){
-    wishLoc = 'USD';
+  lockedCurrency = currencyForCountry(hit.countryCode);
+  if(wishLoc !== lockedCurrency){
+    wishLoc = lockedCurrency;
     try{ localStorage.setItem('apwish_loc', wishLoc); }catch(e){}
   }
   renderLocPick();
