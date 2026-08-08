@@ -302,6 +302,13 @@ footer b{color:var(--oro);font-weight:500}
 .srow .k{color:#6d7178;letter-spacing:.06em}
 .srow .v{color:#14161a;text-align:right;font-weight:500}
 .srow .v.gold{color:#8a6d3b;font-variant-numeric:tabular-nums}
+.srow.best{background:#eef7f1;margin:0 -8px;padding:5px 8px;border-radius:3px;border-bottom-color:transparent}
+.srow.best .v{color:#3f8a5c;font-weight:700}
+.best-tag{
+  display:inline-block;margin-left:7px;background:#3f8a5c;color:#fff;font-size:7.5px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;padding:2px 5px;border-radius:2px;vertical-align:middle;
+}
+.fxnote{font-size:9px;color:#9a9ea5;margin-top:8px;line-height:1.5}
 .sheet-foot{
   margin-top:auto;padding-top:10px;border-top:1px solid #e3ded4;
   font-size:9px;line-height:1.6;color:#8b8f96;letter-spacing:.03em;
@@ -2350,8 +2357,9 @@ function openSheet(it, imgEl, withTax){
 
   html += '<div class="sheet-col"><div class="sheet-h">'+t('officialPrices')+'</div><div id="sheetPrices">';
   PRICE_LOCALES.forEach(function(loc){
-    html += '<div class="srow"><span class="k">'+loc.flag+' '+loc.label+'</span><span class="v gold" data-cur="'+loc.label+'">…</span></div>';
+    html += '<div class="srow" data-row="'+loc.label+'"><span class="k">'+loc.flag+' '+loc.label+'</span><span class="v gold" data-cur="'+loc.label+'">…</span></div>';
   });
+  html += '<div id="bestFxNote" class="fxnote"></div>';
   html += '</div></div>';
   html += '</div>';
 
@@ -2367,7 +2375,7 @@ function openSheet(it, imgEl, withTax){
   document.body.style.overflow = 'hidden';
 
   // prezzi
-  function fill(entry){
+  async function fill(entry){
     var box = document.getElementById('sheetPrices');
     if(box){
       PRICE_LOCALES.forEach(function(loc){
@@ -2377,6 +2385,36 @@ function openSheet(it, imgEl, withTax){
         cell.textContent = p ? (loc.label+' '+fmtPrice(p, loc)) : t('onRequest');
         if(!p) cell.classList.remove('gold');
       });
+
+      var fx = null;
+      try{ fx = await getRates(); }catch(e){}
+      if(fx){
+        var chfEq = {};
+        PRICE_LOCALES.forEach(function(loc){
+          var p = entry && entry[loc.label];
+          if(!p) return;
+          chfEq[loc.label] = (loc.label === 'CHF') ? p.amount : p.amount / fx.rates[loc.label];
+        });
+        var labels = Object.keys(chfEq);
+        if(labels.length){
+          var bestLabel = labels.reduce(function(a,b){ return chfEq[a] <= chfEq[b] ? a : b; });
+          var row = box.querySelector('.srow[data-row="'+bestLabel+'"]');
+          if(row && labels.length > 1){
+            row.classList.add('best');
+            var kEl = row.querySelector('.k');
+            if(kEl && !kEl.querySelector('.best-tag')){
+              var tag = document.createElement('span');
+              tag.className = 'best-tag';
+              tag.textContent = t('best');
+              kEl.appendChild(tag);
+            }
+            var noteEl = document.getElementById('bestFxNote');
+            if(noteEl){
+              noteEl.textContent = t('atCurrentRate')+' — 1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD, '+(fx.source||'market');
+            }
+          }
+        }
+      }
     }
     if(withTax) buildTaxSection(entry);
   }
