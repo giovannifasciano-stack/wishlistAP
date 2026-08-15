@@ -1047,6 +1047,7 @@ var I18N = {
   due:{en:'due', it:'scadenza'},
   atCurrentRate:{en:'At current rate', it:'Al cambio attuale'},
   netDetaxAtCurrentRate:{en:'Net (detax) at current rate', it:'Netto (detax) al cambio attuale'},
+  detaxRefund:{en:'Detax refund (VAT saved)', it:'Rimborso detax (IVA risparmiata)'},
   fxUnavailable:{en:'Equivalent in other currencies unavailable — exchange rates could not be retrieved.', it:'Controvalore nelle altre valute non disponibile — impossibile recuperare i cambi.'},
   legalNotice:{en:'Prices are official Audemars Piguet list prices, retrieved from audemarspiguet.com. Subject to change. This document is an order confirmation from the customer and does not constitute an invoice. Unofficial document \u2014 Audemars Piguet\u00ae is a trademark of Audemars Piguet Holding SA.',
                it:'I prezzi sono i listini ufficiali Audemars Piguet, rilevati da audemarspiguet.com. Soggetti a variazione. Questo documento \u00e8 una conferma d\'ordine da parte del cliente e non costituisce fattura. Documento non ufficiale \u2014 Audemars Piguet\u00ae \u00e8 un marchio di Audemars Piguet Holding SA.'},
@@ -2616,6 +2617,7 @@ async function openOrderSheet(){
   html += '<b id="ordNoFoot">'+orderNo+'</b> &middot; '+wished.length+' '+(wished.length>1?t('watches'):t('watch1'))+' &middot; '+t('generatedOn')+' '+today+'<br>';
   html += t('legalNotice');
   html += '<div id="ordNetFx" style="margin-top:6px"></div>';
+  html += '<div id="ordDetaxRefund" style="margin-top:4px"></div>';
   html += '</div>';
 
   body.innerHTML = html;
@@ -2694,6 +2696,20 @@ async function openOrderSheet(){
                          + ' (1 CHF = '+fx.rates.EUR.toFixed(4)+' EUR = '+fx.rates.USD.toFixed(4)+' USD, '+(fx.source||'market')+')';
     } else {
       fxBox.textContent = t('fxUnavailable');
+    }
+  }
+
+  var refundBox = document.getElementById('ordDetaxRefund');
+  if(refundBox){
+    if(showDetax && fx){
+      var refund = total - net; // sempre sul lordo pieno, coerente col Total mostrato
+      var refundCHF = (wishLoc === 'CHF') ? refund : refund / fx.rates[wishLoc];
+      var refundEUR = refundCHF * fx.rates.EUR;
+      var refundUSD = refundCHF * fx.rates.USD;
+      refundBox.textContent = t('detaxRefund') + ' — '
+                             + 'CHF '+nfmt(refundCHF,'de-CH')+' · EUR '+nfmt(refundEUR,'de-DE')+' · USD '+nfmt(refundUSD,'en-US');
+    } else {
+      refundBox.textContent = '';
     }
   }
 
