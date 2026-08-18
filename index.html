@@ -1164,9 +1164,19 @@ async function fetchPriceRaw(ref, loc, shape){
 }
 
 async function fetchOnePrice(ref, loc){
-  var res = await fetchPriceRaw(ref, loc, null);
-  if(res.json && res.json.price && res.json.price.amount){
-    return {amount:Number(res.json.price.amount), currency:res.json.price.currency || loc.label};
+  // Stesso trattamento del catalogo: AP risponde 406 quando le richieste
+  // arrivano troppo ravvicinate. Riproviamo con pause crescenti invece
+  // di mostrare un trattino al primo rifiuto.
+  var waits = [0, 900, 2200];
+  for(var attempt=0; attempt<waits.length; attempt++){
+    if(waits[attempt] > 0) await sleep(waits[attempt]);
+    var res = await fetchPriceRaw(ref, loc, null);
+    if(res.json && res.json.price && res.json.price.amount){
+      return {amount:Number(res.json.price.amount), currency:res.json.price.currency || loc.label};
+    }
+    // ritentiamo solo sui rifiuti temporanei; un 404 vero significa
+    // che quel listino non esiste per quella referenza
+    if(res.status !== 406 && res.status !== 429 && res.status !== 0) return null;
   }
   return null;
 }
@@ -1205,7 +1215,12 @@ function fmtPrice(p, loc){
 async function getPrices(ref){
   var c = priceCache[ref];
   if(c && (Date.now() - c.ts < PRICE_TTL)) return c;
-  var results = await Promise.all(PRICE_LOCALES.map(function(loc){ return fetchOnePrice(ref, loc); }));
+  // le tre valute una alla volta: in parallelo si fanno 3 richieste
+  // simultanee per orologio e AP inizia a rifiutarle (406)
+  var results = [];
+  for(var i=0;i<PRICE_LOCALES.length;i++){
+    results.push(await fetchOnePrice(ref, PRICE_LOCALES[i]));
+  }
   var entry = {ts: Date.now()};
   PRICE_LOCALES.forEach(function(loc, i){
     entry[loc.label] = results[i] ? {amount:results[i].amount, currency:results[i].currency} : null;
@@ -1238,8 +1253,10 @@ function renderPricesInto(el, entry){
   el.innerHTML = html;
 }
 
-/* coda: max 4 referenze in parallelo (12 richieste HTTP) */
-var priceQueue = [], priceActive = 0, PRICE_MAX = 4;
+/* coda: max 2 referenze alla volta, ognuna con le 3 valute in sequenza
+   (prima erano 4 in parallelo × 3 valute = 12 richieste simultanee,
+   che facevano scattare la protezione anti-scraping di AP) */
+var priceQueue = [], priceActive = 0, PRICE_MAX = 2;
 function pumpPrices(){
   while(priceActive < PRICE_MAX && priceQueue.length){
     var job = priceQueue.shift();
