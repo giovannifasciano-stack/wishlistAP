@@ -903,7 +903,20 @@ async function discover(){
     var n = Object.keys(bag).length;
     document.getElementById('loadMsg').textContent = 'Feed '+doneFeeds+'/'+totalFeeds+' · '+n+' references';
   }
-  await Promise.all(COLLECTIONS.map(function(c){ return loadCollection(c, bag, progress); }));
+  // concorrenza limitata: al massimo 2 collezioni scaricate insieme,
+  // per non mandare in raffica troppe richieste simultanee al proxy
+  var CONC = 2;
+  var idx = 0, active = 0;
+  await new Promise(function(resolve){
+    function pump(){
+      if(idx >= COLLECTIONS.length && active === 0){ resolve(); return; }
+      while(active < CONC && idx < COLLECTIONS.length){
+        var c = COLLECTIONS[idx++]; active++;
+        loadCollection(c, bag, progress).then(function(){ active--; pump(); });
+      }
+    }
+    pump();
+  });
   var list = Object.keys(bag).map(function(k){ return bag[k]; });
   return list.length ? list : null;
 }
