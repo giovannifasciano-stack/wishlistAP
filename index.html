@@ -1118,8 +1118,9 @@ var PRICE_LOCALES = [
   {label:'USD', flag:'🇺🇸', site:'us/en', cc:'us', fmt:'en-US'}
 ];
 var PRICE_LOCALE_US = PRICE_LOCALES[2];
-var PRICE_KEY = 'apvet_prices_v1';
+var PRICE_KEY = 'apvet_prices_v2';
 var PRICE_TTL = 1000*60*60*24*7; // 7 giorni
+var PRICE_FAIL_TTL = 1000*60*10; // 10 minuti per i tentativi non riusciti
 var priceCache = (function(){
   try{
     var o = JSON.parse(localStorage.getItem(PRICE_KEY) || '{}');
@@ -1214,7 +1215,13 @@ function fmtPrice(p, loc){
 
 async function getPrices(ref){
   var c = priceCache[ref];
-  if(c && (Date.now() - c.ts < PRICE_TTL)) return c;
+  if(c){
+    var anyPrice = PRICE_LOCALES.some(function(loc){ return c[loc.label]; });
+    // i successi valgono a lungo, i fallimenti pochi minuti: cosi' un
+    // blocco temporaneo (406) non congela la referenza per una settimana
+    var ttl = anyPrice ? PRICE_TTL : PRICE_FAIL_TTL;
+    if(Date.now() - c.ts < ttl) return c;
+  }
   // le tre valute una alla volta: in parallelo si fanno 3 richieste
   // simultanee per orologio e AP inizia a rifiutarle (406)
   var results = [];
