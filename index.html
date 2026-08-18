@@ -882,17 +882,20 @@ async function loadCollection(coll, bag, progress){
       return {name:v.key, url:'https://www.audemarspiguet.com/us/en/collections/'+coll.slug+'.products.'+v.key+'.json'};
     });
   }
-  // 2) feed in parallelo
-  await Promise.all(endpoints.map(async function(ep){
+  // 2) feed in sequenza — uno alla volta, mai in parallelo: sotto carico
+  //    simultaneo il proxy/AP perdono silenziosamente molte richieste
+  for(var i=0;i<endpoints.length;i++){
+    var ep = endpoints[i];
     var viewKey = ep.name || 'core-collection';
     try{
       var r2 = await timeoutFetch(prox(ep.url), 25000);
-      if(!r2.ok) return;
-      var data = JSON.parse(await r2.text());
-      ingest(data.results || data.items || [], coll, viewKey, bag);
-      progress();
+      if(r2.ok){
+        var data = JSON.parse(await r2.text());
+        ingest(data.results || data.items || [], coll, viewKey, bag);
+      }
     }catch(e){}
-  }));
+    progress();
+  }
 }
 
 async function discover(){
@@ -903,20 +906,10 @@ async function discover(){
     var n = Object.keys(bag).length;
     document.getElementById('loadMsg').textContent = 'Feed '+doneFeeds+'/'+totalFeeds+' · '+n+' references';
   }
-  // concorrenza limitata: al massimo 2 collezioni scaricate insieme,
-  // per non mandare in raffica troppe richieste simultanee al proxy
-  var CONC = 2;
-  var idx = 0, active = 0;
-  await new Promise(function(resolve){
-    function pump(){
-      if(idx >= COLLECTIONS.length && active === 0){ resolve(); return; }
-      while(active < CONC && idx < COLLECTIONS.length){
-        var c = COLLECTIONS[idx++]; active++;
-        loadCollection(c, bag, progress).then(function(){ active--; pump(); });
-      }
-    }
-    pump();
-  });
+  // collezioni in sequenza, una alla volta — stesso motivo di sopra
+  for(var i=0;i<COLLECTIONS.length;i++){
+    await loadCollection(COLLECTIONS[i], bag, progress);
+  }
   var list = Object.keys(bag).map(function(k){ return bag[k]; });
   return list.length ? list : null;
 }
