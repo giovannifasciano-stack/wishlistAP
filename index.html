@@ -1647,14 +1647,30 @@ function syncUrl(){
   return proxyBase.replace(/\/+$/,'') + '/sync?code=' + encodeURIComponent(syncCode);
 }
 
+var syncInitialPullDone = false;   // finche' e' false, nessun invio: eviterebbe
+                                   // di sovrascrivere il server con dati vuoti
+var syncServerHadData = false;     // il server aveva contenuti all'ultimo controllo
+
 function scheduleSyncPush(){
   if(!syncCode) return;
+  if(!syncInitialPullDone) return; // non inviare prima di aver letto il server
   clearTimeout(syncPushTimer);
   syncPushTimer = setTimeout(pushSync, 1200);
 }
 
+function localIsEmpty(){
+  return Object.keys(wishlist).length === 0 && Object.keys(owned).length === 0;
+}
+
 async function pushSync(){
   if(!syncCode) return;
+  if(!syncInitialPullDone) return;
+  // rete di sicurezza: non azzerare il server con uno stato locale vuoto
+  // se il server risultava pieno. Meglio saltare un invio che perdere tutto.
+  if(localIsEmpty() && syncServerHadData){
+    updateSyncStatus('ok');
+    return;
+  }
   syncBusy = true;
   syncTs = Date.now();
   var payload = JSON.stringify({
@@ -1667,6 +1683,7 @@ async function pushSync(){
   try{
     try{ localStorage.setItem(SYNC_TS_KEY, String(syncTs)); }catch(e){}
     var r = await fetch(syncUrl(), { method:'PUT', headers:{'Content-Type':'application/json'}, body: payload });
+    if(r && r.ok && !localIsEmpty()) syncServerHadData = true;
     updateSyncStatus(r && r.ok ? 'ok' : 'warn');
   }catch(e){
     updateSyncStatus('warn');
@@ -1675,13 +1692,28 @@ async function pushSync(){
 }
 
 async function pullSync(showBusy){
-  if(!syncCode) return false;
+  if(!syncCode){ syncInitialPullDone = true; return false; }
   if(showBusy) updateSyncStatus('busy');
   try{
     var r = await fetch(syncUrl());
-    if(!r.ok){ updateSyncStatus('warn'); return false; }
+    if(!r.ok){ updateSyncStatus('warn'); syncInitialPullDone = true; return false; }
     var data = await r.json();
-    if(!data || data.found === false || !data.ts){ updateSyncStatus('ok'); return false; }
+    if(!data || data.found === false || !data.ts){
+      updateSyncStatus('ok');
+      syncInitialPullDone = true;
+      return false;
+    }
+    var remoteHasData = Object.keys(data.wishlist || {}).length > 0 || Object.keys(data.owned || {}).length > 0;
+    if(remoteHasData) syncServerHadData = true;
+
+    // se il server e' vuoto ma qui ci sono dati, non cancelliamo nulla:
+    // sara' il prossimo invio a ripopolare il server
+    if(!remoteHasData && !localIsEmpty()){
+      updateSyncStatus('ok');
+      syncInitialPullDone = true;
+      return false;
+    }
+
     if(data.ts > syncTs){
       wishlist = data.wishlist || {};
       orderSelection = data.orderSelection || {};
@@ -1701,12 +1733,15 @@ async function pullSync(showBusy){
       try{ localStorage.setItem(OWNED_KEY, JSON.stringify(owned)); }catch(e){}
       try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
       updateSyncStatus('ok');
+      syncInitialPullDone = true;
       return true;
     }
     updateSyncStatus('ok');
+    syncInitialPullDone = true;
     return false;
   }catch(e){
     updateSyncStatus('warn');
+    syncInitialPullDone = true;
     return false;
   }
 }
@@ -1761,7 +1796,9 @@ var profile = (function(){
     return p;
   }catch(e){ return Object.assign({}, DEFAULT_PROFILE); }
 })();
-saveProfile();
+// NOTA: qui NON si salva il profilo. Un salvataggio all'avvio faceva partire
+// un invio al server prima ancora di aver letto i dati remoti, sovrascrivendo
+// wishlist e posseduti con uno stato vuoto.
 function saveProfile(){
   try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
   scheduleSyncPush();
