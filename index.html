@@ -1758,7 +1758,12 @@ function saveWish(){
   try{ localStorage.setItem(WISH_KEY, JSON.stringify(wishlist)); }catch(e){}
   scheduleSyncPush();
 }
-function wishCount(){ return Object.keys(wishlist).length; }
+function wishCount(){
+  // esclude i pezzi gia' segnati come posseduti: quelli vivono nella
+  // sezione Owned, quindi il contatore deve rispecchiare cio' che si vede
+  var own = (typeof owned === 'object' && owned) ? owned : {};
+  return Object.keys(wishlist).filter(function(ref){ return !own[ref]; }).length;
+}
 
 /* =========================================================
    PROFILO CLIENTE (nome + due indirizzi spedizione)
@@ -2138,6 +2143,7 @@ function cardFor(it){
       var msg = willBeOwned ? t('confirmMarkOwned') : t('confirmUnmarkOwned');
       if(!confirm(msg)) return;
       toggleOwned(it.ref);
+      updateWishHeader();
       renderGrid();
     };
     card.appendChild(ownb);
